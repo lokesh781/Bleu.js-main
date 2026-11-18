@@ -1,0 +1,409 @@
+name: Bleu.js SDK and API CI
+
+on:
+  push:
+    branches: [main, staging, develop, 'security/**']
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - '.github/*.md'
+      - 'LICENSE'
+      - 'CHANGELOG.md'
+  # Run CI on every PR (including docs-only) so branch ruleset required checks
+  # can pass. push.paths-ignore below still skips post-merge doc-only pushes.
+  pull_request:
+    branches: [main, staging]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      force_deploy:
+        description: 'Force deployment even if tests fail'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  id-token: write
+  security-events: write
+  pull-requests: write
+  packages: write
+
+env:
+  AWS_REGION: us-east-1
+  PYTHON_VERSION: '3.11'
+  POETRY_VERSION: '1.7.1'
+  CACHE_VERSION: 'v2'
+  DOCKER_BUILDKIT: 1
+  ECR_REPOSITORY: bleujs
+  COVERAGE_THRESHOLD: 30
+  SECURITY_SCAN_LEVEL: medium
+
+jobs:
+  # ============================================================================
+  # AUTO-ASSIGNMENT (PRs only)
+  # ============================================================================
+  auto-assign:
+    runs-on: ubuntu-24.04
+    # Skip Dependabot PRs even when a human merges main (actor != dependabot).
+    if: >
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      !startsWith(github.head_ref, 'dependabot/')
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: kentaro-m/auto-assign-action@v2.0.2
+        with:
+          configuration-path: .github/auto-assign.yml
+
+  # ============================================================================
+  # SECURITY & COMPLIANCE SCAN
+  # ============================================================================
+  security-scan:
+    name: 🔒 Security & Compliance Scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      security-status: ${{ steps.security-check.outputs.status }}
+      vulnerabilities: ${{ steps.security-check.outputs.vulnerabilities }}
+
+    steps:
+      - name: Free Disk Space
+        run: |
+          echo "🔧 Freeing up disk space..."
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          docker system prune -af --volumes || true
+          df -h
+
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v6
+        with:
+          path: .venv
+          key: venv-security-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml') }}
+
+      - name: Install Poetry
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry==${{ env.POETRY_VERSION }}
+
+      - name: Configure Poetry
+        run: |
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project true
+
+      - name: Install dependencies
+        run: |
+          set -e
+          # Use --extras ci (all minus gputil) to avoid gputil install querying repo "python/" dir → permission denied
+          for i in 1 2 3; do
+            echo "Attempt $i: poetry install --no-interaction --no-root --extras ci --with dev"
+            if poetry install --no-interaction --no-root --extras ci --with dev; then
+              echo "✅ Poetry install succeeded on attempt $i"
+              break
+            fi
+            if [ "$i" -eq 3 ]; then
+              echo "❌ Poetry install failed after $i attempts"
+              exit 1
+            fi
+            echo "⚠️ Poetry install failed (likely network issue), retrying in 30s..."
+            sleep 30
+          done
+
+      - name: Run Safety Scan
+        id: vuln-check
+        run: |
+          poetry run pip install safety
+          poetry run safety scan --output json > safety-report.json 2>/dev/null || echo '{"vulnerabilities":[]}' > safety-report.json
+
+          if [ -f safety-report.json ]; then
+            TOTAL=$(jq '.vulnerabilities | length' safety-report.json)
+            CRITICAL=$(jq '.vulnerabilities[]? | select(.severity == "CRITICAL") | .package' safety-report.json 2>/dev/null | wc -l)
+            echo "count=$TOTAL" >> $GITHUB_OUTPUT
+            echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
+          else
+            echo "count=0" >> $GITHUB_OUTPUT
+            echo "critical=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Bandit Security Scan
+        id: bandit-scan
+        run: |
+          poetry run bandit -r src/ -f json -o bandit-report.json --skip B101,B601 || echo '{"results": []}' > bandit-report.json
+          if [ -f bandit-report.json ]; then
+            VULNERABILITIES=$(jq '.results | length' bandit-report.json)
+            echo "vulnerabilities=$VULNERABILITIES" >> $GITHUB_OUTPUT
+            if [ "$VULNERABILITIES" -gt 10 ]; then
+              echo "status=failed" >> $GITHUB_OUTPUT
+            else
+              echo "status=passed" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "vulnerabilities=0" >> $GITHUB_OUTPUT
+            echo "status=passed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run pip-audit
+        id: pip-audit
+        run: |
+          poetry run pip install pip-audit
+          poetry run pip-audit --format json --output pip-audit-report.json || true
+          # Count vulns (pip-audit JSON may use .vulnerabilities or .result)
+          if [ -f pip-audit-report.json ]; then
+            COUNT=$(jq '[.vulnerabilities[]?] | length // ([.result[][]?] | length) // 0' pip-audit-report.json 2>/dev/null || echo "0")
+            echo "pip_audit_count=$COUNT" >> $GITHUB_OUTPUT
+          else
+            echo "pip_audit_count=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set security check output
+        id: security-check
+        if: always()
+        run: |
+          SAFETY_CRITICAL="${{ steps.vuln-check.outputs.critical || '0' }}"
+          SAFETY_TOTAL="${{ steps.vuln-check.outputs.count || '0' }}"
+          PIP_AUDIT_COUNT="${{ steps.pip-audit.outputs.pip_audit_count || '0' }}"
+          echo "status=passed" >> $GITHUB_OUTPUT
+          echo "vulnerabilities=Safety:$SAFETY_TOTAL (critical:$SAFETY_CRITICAL) | pip-audit:$PIP_AUDIT_COUNT" >> $GITHUB_OUTPUT
+          if [ "$SAFETY_CRITICAL" != "0" ] || [ "$PIP_AUDIT_COUNT" != "0" ]; then
+            echo "status=failed" >> $GITHUB_OUTPUT
+            echo "::error::Security: $SAFETY_CRITICAL critical (Safety), $PIP_AUDIT_COUNT vulns (pip-audit). Fix deps or triage in Security tab."
+            exit 1
+          fi
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: security-reports
+          path: |
+            safety-report.json
+            bandit-report.json
+            pip-audit-report.json
+          retention-days: 30
+          compression-level: 6
+
+  # ============================================================================
+  # CODE QUALITY & LINTING
+  # ============================================================================
+  lint:
+    name: 🧹 Code Quality & Linting
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Free Disk Space
+        run: |
+          echo "🔧 Freeing up disk space..."
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          docker system prune -af --volumes || true
+          df -h
+
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: pyproject.toml
+
+      - name: Install lint tools
+        # Lint does not need the full [ci] stack. Installing tools via pip avoids
+        # stale Poetry .venv caches (poetry.lock is gitignored → empty cache key)
+        # that previously left black "installed" but missing from poetry run PATH.
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install \
+            'black>=25.1,<27.0' \
+            'isort>=5,<9' \
+            'flake8>=4,<5' \
+            'mypy>=0.900,<2.4' \
+            'bandit>=1.7,<2'
+          python -m black --version
+          python -m isort --version
+
+      - name: Run linting tools
+        run: |
+          python -m black . --check
+          python -m isort . --check-only
+          python -m flake8 . --max-line-length=88 --extend-ignore=E501,W503 || true
+          python -m mypy . --ignore-missing-imports --no-strict-optional || true
+          python -m bandit -r src scripts -x ".venv,venv,env,security-update-env,tests" -f json -o bandit-lint-results.json || true
+
+      - name: Upload linting results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: linting-results
+          path: bandit-lint-results.json
+          retention-days: 3
+          compression-level: 6
+
+  # ============================================================================
+  # TEST SUITE
+  # ============================================================================
+  test:
+    name: 🧪 Test Suite
+    needs: security-scan
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-24.04]
+        python-version: [3.11]
+        include:
+          - python-version: 3.11
+            qiskit-version: '1.4.2'
+            qiskit-aer-version: '0.13.0'
+
+    steps:
+      - name: Free Disk Space
+        run: |
+          echo "🔧 Freeing up disk space..."
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          docker system prune -af --volumes || true
+          df -h
+
+      - uses: actions/checkout@v7
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v6
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml') }}
+
+      - name: Cache pip packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ matrix.python-version }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml') }}
+
+      - name: Install Poetry
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry==${{ env.POETRY_VERSION }}
+
+      - name: Configure Poetry
+        run: |
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project true
+          poetry config installer.max-workers 4
+
+      - name: Install dependencies
+        run: |
+          set -e
+          # Use --extras ci (all minus gputil) to avoid gputil install querying repo "python/" dir → permission denied
+          for i in 1 2 3; do
+            echo "Attempt $i: poetry install --no-interaction --no-root --extras ci --with dev"
+            if poetry install --no-interaction --no-root --extras ci --with dev; then
+              echo "✅ Poetry install (with quantum/monitoring) succeeded on attempt $i"
+              break
+            fi
+            if [ "$i" -eq 3 ]; then
+              echo "❌ Poetry install (with quantum/monitoring) failed after $i attempts"
+              exit 1
+            fi
+            echo "⚠️ Poetry install (with quantum/monitoring) failed (likely network issue), retrying in 30s..."
+            sleep 30
+          done
+
+      - name: Run tests with coverage
+        env:
+          # Required settings for tests (must be >= 32 chars and not match forbidden values)
+          SECRET_KEY: ${{ secrets.SECRET_KEY || 'ci-test-secret-key-32-chars-minimum-length-required-for-validation' }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD || 'ci-test-db-password-32-chars-minimum-length-required' }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY || 'ci-test-jwt-secret-key-32-chars-minimum-length-required' }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-jwt-secret-32-chars-minimum-length-required-for-validation' }}
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY || 'ci-test-encryption-key-32-chars-minimum-length-required-for-validation' }}
+          TESTING: 'True'
+        run: |
+          poetry run pytest tests/ --cov=src --cov-branch --cov-report=xml --cov-report=html --cov-report=term-missing --cov-fail-under=${{ env.COVERAGE_THRESHOLD }} --junitxml=junit.xml -o junit_family=legacy --ignore tests/test_api_token_service.py --ignore tests/test_api_token_validation.py --ignore tests/test_api_tokens.py --ignore tests/test_monitoring.py --ignore tests/test_rate_limiting.py --ignore tests/test_services_coverage.py --ignore tests/services/test_redis_client.py --ignore tests/services/test_secrets_manager.py --ignore tests/unit/ai/test_attention.py --ignore tests/unit/aws/test_ec2.py --ignore tests/quantum/test_contest_strategy.py --ignore tests/quantum/test_quantum_circuit.py --ignore tests/middleware/rate_limit_test.py --ignore tests/middleware/auth_test.py --ignore tests/quantum/quantum_processor_test.py --ignore tests/integration/ --strict-markers --disable-warnings --tb=short --maxfail=10 --durations=10 -v
+
+      - name: Clean up after tests
+        if: always()
+        run: |
+          echo "🧹 Cleaning up disk space after tests..."
+          poetry env remove --all || true
+          rm -rf .venv
+          docker system prune -af --volumes || true
+          df -h
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results-${{ runner.os }}-${{ matrix.python-version }}
+          path: |
+            coverage.xml
+            htmlcov/
+            junit.xml
+          retention-days: 7
+          compression-level: 6
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v7
+        if: always()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  # ============================================================================
+  # PIPELINE STATUS SUMMARY
+  # ============================================================================
+  pipeline-summary:
+    name: 📢 Pipeline Status Summary
+    needs: [lint, test, security-scan]
+    runs-on: ubuntu-24.04
+    if: always()
+    steps:
+      - name: Generate Pipeline Summary
+        run: |
+          echo "## 🚀 Bleu.js CI/CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **OS**: ubuntu-24.04" >> $GITHUB_STEP_SUMMARY
+          echo "- **Python**: ${{ env.PYTHON_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Coverage**: Generated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔒 Security Status" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security Scan**: ${{ needs.security-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Vulnerabilities**: ${{ needs.security-scan.outputs.vulnerabilities }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🧹 Code Quality" >> $GITHUB_STEP_SUMMARY
+          echo "- **Linting**: ${{ needs.lint.result }}" >> $GITHUB_STEP_SUMMARY

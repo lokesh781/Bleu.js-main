@@ -1,0 +1,1315 @@
+# Changelog
+
+## [v1.5.178] - 2026-10-13
+
+### Changed
+- Publish the current README. PyPI will describe Bleu.js as an open-source SDK, CLI, and API contract, with an optional self-hosted app.
+- Release Management publishes only from a new tag. A merge to main does not bump the version or create a release. Publishing 1.5.177 again is refused.
+- Live SDK Smoke calls chat, generate, and embed on https://api.bleujs.org/api/v1/* and fails on a Cloudflare challenge.
+- The repository OpenAPI document states that /api/v1/* is canonical and /v1/* is a compatibility alias.
+- CLI help matches the SDK and API. Windows console status text no longer depends on characters the legacy Windows console cannot encode.
+- The optional teleportation module is described as a demonstration, not as the product.
+
+## [v1.5.177] - 2026-09-26
+
+### Changed
+- Publish the current README to PyPI. It describes the API client and CLI, and it records that Bleu OS and the old benchmark figures are historical.
+
+## [v1.5.42] - 2026-07-16
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.41 to 1.5.42
+- See commit history for changes
+
+
+## Unreleased
+
+### Changed
+- Moved the OpenAPI edge stub and contract tests to `services/edge-stub/`. See [BACKEND_REPO.md](docs/BACKEND_REPO.md).
+
+## [v1.5.40] - 2026-06-03
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.39 to 1.5.40
+- See commit history for changes
+
+
+## [v1.5.39] - 2026-06-02
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.38 to 1.5.39
+- See commit history for changes
+
+
+## [v1.5.38] - 2026-06-02
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.37 to 1.5.38
+- See commit history for changes
+
+
+## Unreleased
+
+### Performance
+- **`process_optimizer`:** Pre-compute duration mean in bottleneck detection (O(n) vs O(n²)); cache critical path and analysis results; replace exponential `all_simple_paths` with topological parallel groups; RL early stopping; direct tensor state encoding; CPU-aware `ThreadPoolExecutor` and `differential_evolution` workers.
+
+### Documentation
+- **OSS cleanup (PR 1):** Move maintainer handoffs and ops runbooks to `docs/archive/maintainer/`; refresh `docs/archive/README.md`; update contributor doc links.
+- **OSS scorecard (PR 5–6):** Add `OSS_SCORECARD.md` (honest 87/100 snapshot); supersede stale `REPOSITORY_HEALTH_REPORT.md`; add `docs/SECURITY_TAB_HYGIENE.md` runbook.
+- **OSS cleanup (PR 2):** Slim README (~1,100 → ~180 lines); extract content to `docs/PLATFORM_OVERVIEW.md`, `docs/ACHIEVEMENTS.md`, `docs/PERFORMANCE.md`, and archived Docker Compose reference.
+- **OSS cleanup (PR 3–4):** Add `IP_AND_CONTRIBUTIONS.md`, archive patent/award drafts under `docs/archive/ip/`; PyPI homepage/repository/documentation URLs and `PACKAGE_MAP.md`.
+- **OSS cleanup (PR 7):** Seed good first issues #234–#238; link from `CONTRIBUTOR_GUIDE.md`.
+- **Governance:** `MAINTAINERS.md`, professional `CONTRIBUTORS.md`, commit attribution policy; clarify GitHub bot avatars vs official team.
+
+### Removed
+- **Bleu OS** — Removed `bleu-os/` tree, `bleu-os.yml` and `docker-publish.yml` workflows, and Docker Hub publish path. Self-host uses the root [Dockerfile](Dockerfile) with [deploy/requirements-server.txt](deploy/requirements-server.txt). The `bleuos/bleu-os` images on Docker Hub are retired (no longer built from this repo).
+
+## [v1.5.37] - 2026-06-02
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.36 to 1.5.37
+- See commit history for changes
+
+
+## [v1.5.36] - 2026-06-02
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.35 to 1.5.36
+- See commit history for changes
+
+
+## [v1.5.35] - 2026-06-02
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.34 to 1.5.35
+- See commit history for changes
+
+
+## [v1.5.34] - 2026-06-02
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.33 to 1.5.34
+- See commit history for changes
+
+
+## [v1.5.33] - 2026-06-02
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.32 to 1.5.33
+- See commit history for changes
+
+
+## [v1.5.32] - 2026-06-02
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.31 to 1.5.32
+- See commit history for changes
+
+
+## [v1.5.31] - 2026-05-28
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.30 to 1.5.31
+- See commit history for changes
+
+
+## [v1.5.30] - 2026-05-25
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.29 to 1.5.30
+- See commit history for changes
+
+
+## [v1.5.29] - 2026-05-25
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.28 to 1.5.29
+- See commit history for changes
+
+
+## [v1.5.28] - 2026-05-25
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.27 to 1.5.28
+- See commit history for changes
+
+
+## [v1.5.27] - 2026-05-25
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.26 to 1.5.27
+- See commit history for changes
+
+
+## [v1.5.26] - 2026-05-25
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.25 to 1.5.26
+- See commit history for changes
+
+
+## [v1.5.25] - 2026-05-25
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.24 to 1.5.25
+- See commit history for changes
+
+
+## [v1.5.24] - 2026-05-25
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.23 to 1.5.24
+- See commit history for changes
+
+
+## [v1.5.23] - 2026-05-25
+
+### Fixed
+- Default the Python SDK and CLI API base URL to `https://api.bleujs.org` so installed clients target the API host directly.
+- Add a live PyPI SDK smoke workflow that installs `bleu-js` in a clean virtualenv and exercises `health()` and `list_models()` with a real API key.
+- Document the Cloudflare/WAF requirement for `/health` and `/api/v1/*` to allow non-browser Python SDK clients.
+
+
+## [v1.5.22] - 2026-05-25
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.21 to 1.5.22
+- See commit history for changes
+
+
+## [v1.5.21] - 2026-05-23
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.20 to 1.5.21
+- See commit history for changes
+
+
+## [v1.5.20] - 2026-05-23
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.19 to 1.5.20
+- See commit history for changes
+
+### 🔒 Security Follow-Up
+- Raise `python-multipart` minimum to `0.0.27` across manifests to address multipart header DoS advisories
+
+
+## [v1.5.19] - 2026-05-18
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.18 to 1.5.19
+- See commit history for changes
+
+
+## [v1.5.18] - 2026-05-18
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.17 to 1.5.18
+- See commit history for changes
+
+
+## [v1.5.17] - 2026-05-18
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.16 to 1.5.17
+- See commit history for changes
+
+
+## [v1.5.16] - 2026-05-18
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.15 to 1.5.16
+- See commit history for changes
+
+
+## [v1.5.15] - 2026-05-16
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.14 to 1.5.15
+- See commit history for changes
+
+
+## [v1.5.14] - 2026-05-14
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.13 to 1.5.14
+- See commit history for changes
+
+
+## [v1.5.13] - 2026-05-04
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.12 to 1.5.13
+- See commit history for changes
+
+
+## [v1.5.12] - 2026-05-04
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.11 to 1.5.12
+- See commit history for changes
+
+
+## [v1.5.11] - 2026-05-04
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.10 to 1.5.11
+- See commit history for changes
+
+
+## [v1.5.10] - 2026-05-04
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.9 to 1.5.10
+- See commit history for changes
+
+
+## [v1.5.9] - 2026-05-04
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.8 to 1.5.9
+- See commit history for changes
+
+
+## [v1.5.8] - 2026-05-04
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.7 to 1.5.8
+- See commit history for changes
+
+
+## [v1.5.7] - 2026-05-04
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.6 to 1.5.7
+- See commit history for changes
+
+
+## [v1.5.6] - 2026-05-04
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.5 to 1.5.6
+- See commit history for changes
+
+
+## [v1.5.5] - 2026-04-13
+
+### Security & CI
+
+- **pytest:** Bump to **9.0.3+** (addresses CVE-2025-71176 / Dependabot tmpdir symlink issue) in `pyproject.toml`, `poetry.lock`, `src/python/requirements-test.txt`, and `src/python/tests/requirements-test.txt`.
+- **Release workflow:** Run “Test built packages” only when the build matrix succeeds (avoids missing-artifact failures blocking PyPI).
+- **Slack notifications:** Replace deprecated `action-slack@v3` with an optional `curl`+`jq` webhook step (non-blocking on 404); fix `needs` so `validate` outputs are available for the message.
+
+## [v1.5.4] - 2026-04-13
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.3 to 1.5.4
+- See commit history for changes
+
+
+## [v1.5.3] - 2026-04-02
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.2 to 1.5.3
+- See commit history for changes
+
+
+## [v1.5.2] - 2026-04-01
+
+### Python SDK & docs
+
+- **Chat API:** `BleuAPIClient.chat` / `AsyncBleuAPIClient.chat` and `ChatCompletionRequest` support optional `session_seed_goal` (string, max 500 chars) for first-turn session seeding; CLI flag `--session-seed-goal`. OpenAPI and API client guide updated. Hosted API remains backward compatible for existing clients.
+
+## [v1.5.1] - 2026-03-29
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.5.0 to 1.5.1
+- See commit history for changes
+
+
+## [v1.5.0] - 2026-03-25
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.54 to 1.5.0
+- See commit history for changes
+
+
+## [v1.4.54] - 2026-03-25
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.53 to 1.4.54
+- See commit history for changes
+
+
+## [v1.4.53] - 2026-03-20
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.52 to 1.4.53
+- See commit history for changes
+
+
+## [v1.4.52] - 2026-03-20
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.51 to 1.4.52
+- See commit history for changes
+
+
+## [v1.4.51] - 2026-03-20
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.50 to 1.4.51
+- See commit history for changes
+
+
+## [v1.4.50] - 2026-03-20
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.49 to 1.4.50
+- See commit history for changes
+
+### Fixed
+- **ORM:** Resolved SQLAlchemy mapping inconsistencies between `Customer` and `Payment` relationships and aligned payment foreign-key typing with customer IDs.
+- **API tokens:** Fixed authenticated token listing flow and standardized token/auth tests to current service interfaces.
+- **Monitoring and rate limiting tests:** Updated test suites to match current service contracts and removed stale fixture assumptions.
+- **CLI tests:** Switched config-show verification to stable in-process invocation to avoid environment-dependent subprocess import failures.
+- **Quantum attention:** Added compatibility handling for Cirq rotation gate APIs and fixed batch feature handling during circuit initialization.
+- **Optional ML deps:** Made `xgboost` imports robust so module imports succeed when optional ML extras are not installed.
+
+## [v1.4.49] - 2026-03-18
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.48 to 1.4.49
+- See commit history for changes
+
+
+## [v1.4.48] - 2026-03-18
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.47 to 1.4.48
+- See commit history for changes
+
+
+## [v1.4.47] - 2026-03-18
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.46 to 1.4.47
+- See commit history for changes
+
+
+## [v1.4.46] - 2026-03-14
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.45 to 1.4.46
+- See commit history for changes
+
+
+## [v1.4.45] - 2026-03-12
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.44 to 1.4.45
+- See commit history for changes
+
+
+## [v1.4.44] - 2026-03-12
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.43 to 1.4.44
+- See commit history for changes
+
+
+## [v1.4.43] - 2026-03-12
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.42 to 1.4.43
+- See commit history for changes
+
+
+## [v1.4.42] - 2026-03-12
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.41 to 1.4.42
+- See commit history for changes
+
+
+## [v1.4.40] - 2026-03-12
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.39 to 1.4.40
+- See commit history for changes
+
+
+## [v1.4.39] - 2026-03-12
+
+### Fixed
+- **CLI:** `bleu config show` accepts optional trailing args (`_rest`) so extra tokens no longer cause "Got unexpected extra argument (show)" in some environments.
+
+### Changed
+- **bleu-os:** TRIVY_ALERTS.md adds a policy-exception table for Debian 12 CVEs with "Fix available: No" (tar, shadow, openssl, patch, apt, gnutls28, openldap, binutils, coreutils, libgcrypt20, jansson, sqlite3, gcc-12, gnupg2).
+- **Docs:** [ISSUES_AND_SOLUTIONS.md](docs/archive/maintainer/ISSUES_AND_SOLUTIONS.md) — developer reference for config show, chat timeout, generate/embed 500 (fixes and verification). BACKEND_REPO.md links to it.
+
+## [v1.4.38] - 2026-03-12
+
+### Changed
+- **bleu-os:** TRIVY_ALERTS.md documents Docker Hub push as `bleuos/bleu-os` (tag and push commands). Dockerfile comments note `--pull` for security-sensitive builds.
+- **Docs:** Smoke test results (pass/fail vs bleujs.org) in `docs/SMOKE_TEST_RESULTS.md`; BACKEND_REPO.md links to it for backend handoff.
+
+## [v1.4.37] - 2026-03-12
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.36 to 1.4.37
+- See commit history for changes
+
+
+## [v1.4.36] - 2026-03-12
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.35 to 1.4.36
+- See commit history for changes
+
+
+## [Unreleased]
+
+## [v1.4.36] - 2026-03-11
+
+### Fixed
+- **CLI:** `bleu config show` no longer raises "Got unexpected extra argument (show)"; command accepts optional trailing args so Click routing works in all environments.
+- **API client:** Generate/embed (and other endpoints) now surface the real API error message instead of "Unknown error". Error parsing supports `error.message`, FastAPI-style `detail` (string or list of validation errors), and top-level `message`.
+
+### Tests
+- Added `test_error_response_fastapi_detail_surfaced` for FastAPI-style error body.
+
+## [v1.4.35] - 2026-03-11
+
+### Added (best-in-market)
+- **Retries:** Automatic retry on **429** (rate limit) and **503** (overloaded) with exponential backoff and jitter; honors **Retry-After** header. Configurable via `retry_on_rate_limit=True` (default).
+- **RateLimitError.retry_after:** Optional seconds to wait (from API header) so callers can implement custom backoff.
+- **Timeouts:** Separate **connect** (5s default) and **read** timeouts; pass `timeout=(connect_secs, read_secs)` or a single read timeout. Uses `httpx.Timeout` for industry-standard behavior.
+- **Exports:** `ModelListResponse` exported for type-annotated code.
+- **Docs:** “Best practices (production)” section in API Client Guide (reuse client, timeouts, retries, error handling, secrets).
+
+### Fixed
+- **API client:** Resolved `'str' object has no attribute 'get'` when the live API returns alternate response shapes. Chat, generate, and embed now accept:
+  - **Chat:** OpenAI-style `choices[].message.content`, flat `{ "content": "..." }`, `choices` as list of strings, or `message` as string; bare string or `None` body.
+  - **Generate:** Dict with `text`, or plain string / list (first element) / `None`.
+  - **Embed:** `data` as list of `{ "embedding": [...] }` or list of raw vectors; `data` null or missing.
+- **Error handling:** Non-dict error response bodies (e.g. plain string `"Unauthorized"`) are handled without crashing.
+
+- **CLI:** `--debug` flag to enable debug logging for the API client.
+- **Tests:** Coverage for flat chat, string choices, message-as-string, plain-string generate, raw embedding vectors, null/missing data, string error body, `None` chat response, Retry-After, and 429 retry-then-success.
+
+### Security
+- **Tests:** Fix incomplete URL substring sanitization (CodeQL): assert exact `base_url == DEFAULT_BASE_URL` instead of `"bleujs.org" in base_url` in async client test.
+
+### Changed
+- Response parsing is centralized in `_shared` with `normalize_*` and `build_*` helpers; sync and async clients use the same logic.
+- `ChatCompletionResponse.content` and `EmbeddingResponse.embeddings` are defensive against any API shape (string/dict/list choices and data items).
+
+## [v1.4.34] - 2026-03-11
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.33 to 1.4.34
+- See commit history for changes
+
+
+## [v1.4.33] - 2026-03-11
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.32 to 1.4.33
+- See commit history for changes
+
+
+Releases are created automatically on push to `main` (see `.github/workflows/auto-release.yml` and `release.yml`). Manual version bumps and release notes are documented in [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md).
+
+## [v1.4.32] - 2026-03-10
+
+### Fixed
+- **CLI:** Entry point `main()` now calls `cli.main(args=..., prog_name="bleu")` explicitly so `bleu config show` works reliably regardless of `sys.argv` / `_detect_program_name()` (e.g. under pytest or `python -m`).
+
+### Tests
+- **CLI config show:** Tests run `bleu config show` in a subprocess with explicit `prog_name="bleu"`; "with data" test uses a temp HOME and `~/.bleujs/config.json` so output assertions (e.g. masked API key) are reliable.
+
+### Changed
+- Version set to 1.4.32 for release.
+
+## [v1.4.31] - 2026-03-10
+
+### Fixed
+- **CLI:** `bleu config show` now works (fixed Click routing: config group uses `@click.pass_context` so "show" is dispatched as subcommand instead of extra argument).
+
+### Documentation
+- **bleujs.org alignment:** Added [BLEUJS_ORG_REVIEW_2026-03.md](docs/archive/maintainer/BLEUJS_ORG_REVIEW_2026-03.md) with review of site vs repo claims and copy-paste block for website team (version, BLEUJS_API_KEY, one-line pitch).
+
+### Changed
+- Version set to 1.4.31 for release.
+
+
+## [v1.4.30] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.29 to 1.4.30
+- See commit history for changes
+
+
+## [v1.4.29] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.28 to 1.4.29
+- See commit history for changes
+
+
+## [v1.4.28] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.27 to 1.4.28
+- See commit history for changes
+
+
+## [v1.4.27] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.26 to 1.4.27
+- See commit history for changes
+
+
+## [v1.4.26] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.25 to 1.4.26
+- See commit history for changes
+
+
+## [v1.4.25] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.24 to 1.4.25
+- See commit history for changes
+
+
+## [v1.4.24] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.23 to 1.4.24
+- See commit history for changes
+
+
+## [v1.4.23] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.22 to 1.4.23
+- See commit history for changes
+
+
+## [v1.4.22] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.21 to 1.4.22
+- See commit history for changes
+
+
+## [v1.4.21] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.20 to 1.4.21
+- See commit history for changes
+
+
+## [v1.4.20] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.19 to 1.4.20
+- See commit history for changes
+
+
+## [v1.4.19] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.18 to 1.4.19
+- See commit history for changes
+
+
+## [v1.4.18] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.17 to 1.4.18
+- See commit history for changes
+
+
+## [v1.4.17] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.16 to 1.4.17
+- See commit history for changes
+
+
+## [v1.4.16] - 2026-03-10
+
+### Added
+- **Product philosophy** — [docs/PRODUCT_PHILOSOPHY.md](docs/PRODUCT_PHILOSOPHY.md): efficient by default, powerful by choice; positioning and principles for the team.
+- **Exception hints** — `AuthenticationError` and `RateLimitError` now expose a `user_hint` property; CLI shows actionable hints (e.g. "Get an API key at https://bleujs.org").
+
+### Changed
+- **README** — "What's next & keep improving" section (Roadmap, Changelog, Product philosophy); link to Product philosophy in standards.
+- **GET_STARTED** — "What's next?" table includes Roadmap & Product philosophy.
+- **CLI** — Main help text updated: two-minute promise, `bleu`/`bleujs` both work, link to docs.
+- **API client** — Module docstring improved: retries/timeouts mentioned, best-practice context manager.
+
+## [v1.4.15] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.14 to 1.4.15
+- See commit history for changes
+
+
+## [v1.4.14] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.13 to 1.4.14
+- See commit history for changes
+
+
+## [v1.4.13] - 2026-03-10
+
+### Fixed
+- **CLI entry point:** Ensure the installed console script uses the package-relative import `bleujs.cli:main` (not `cli:main`) so `bleujs version` / `bleujs health` work after `pip install bleu-js`. Added comments in `pyproject.toml` and `setup.py` to prevent regressions.
+- **Docs:** Document that both `bleu` and `bleujs` are installed as CLI commands (e.g. `bleu version` and `bleujs version` both work). Updated README, GET_STARTED, INSTALLATION, ROADMAP, and issue templates.
+
+## [v1.4.12] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.11 to 1.4.12
+- See commit history for changes
+
+
+## [v1.4.11] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.10 to 1.4.11
+- See commit history for changes
+
+
+## [v1.4.10] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.9 to 1.4.10
+- See commit history for changes
+
+
+## [v1.4.9] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.8 to 1.4.9
+- See commit history for changes
+
+
+## [v1.4.8] - 2026-03-10
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.7 to 1.4.8
+- See commit history for changes
+
+
+## [v1.4.7] - 2026-03-09
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.6 to 1.4.7
+- See commit history for changes
+
+
+## [v1.4.6] - 2026-03-09
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.5 to 1.4.6
+- See commit history for changes
+
+
+## [v1.4.5] - 2026-03-09
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.4 to 1.4.5
+- See commit history for changes
+
+
+## [v1.4.4] - 2026-03-09
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.3 to 1.4.4
+- See commit history for changes
+
+
+## [v1.4.3] - 2026-03-09
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.2 to 1.4.3
+- See commit history for changes
+
+
+## [v1.4.2] - 2026-03-09
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.1 to 1.4.2
+- See commit history for changes
+
+
+## [v1.3.59] - 2026-03-08
+
+### Version alignment
+- Version set to **1.3.59** to match bleujs.org: **Bleu.js v1.3.x – Unified SDK & CLI**
+- Single source of truth: `pyproject.toml` and `src/bleujs/__init__.py` (CLI • Python SDK • Cloud API)
+
+## [v1.4.1] - 2026-03-08
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.4.0 to 1.4.1
+- See commit history for changes
+
+
+## [v1.4.0] - 2026-03-08
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.3.58 to 1.4.0
+- See commit history for changes
+
+
+## [v1.3.58] - 2026-03-08
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.3.57 to 1.3.58
+- See commit history for changes
+
+
+## [v1.3.57] - 2026-03-08
+
+### 🎉 Automatic Release
+- Version bumped automatically from 1.3.56 to 1.3.57
+- See commit history for changes
+
+
+## [v1.3.56] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.55 to 1.3.56
+- See commit history for changes
+
+## [v1.3.55] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.54 to 1.3.55
+- See commit history for changes
+
+## [v1.3.54] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.53 to 1.3.54
+- See commit history for changes
+
+## [v1.3.53] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.52 to 1.3.53
+- See commit history for changes
+
+## [v1.3.52] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.51 to 1.3.52
+- See commit history for changes
+
+## [v1.3.51] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.50 to 1.3.51
+- See commit history for changes
+
+## [v1.3.50] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.49 to 1.3.50
+- See commit history for changes
+
+## [v1.3.49] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.48 to 1.3.49
+- See commit history for changes
+
+## [v1.3.48] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.47 to 1.3.48
+- See commit history for changes
+
+## [v1.3.47] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.46 to 1.3.47
+- See commit history for changes
+
+## [v1.3.46] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.45 to 1.3.46
+- See commit history for changes
+
+## [v1.3.45] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.44 to 1.3.45
+- See commit history for changes
+
+## [v1.3.44] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.43 to 1.3.44
+- See commit history for changes
+
+## [v1.3.43] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.42 to 1.3.43
+- See commit history for changes
+
+## [v1.3.42] - 2026-03-08
+
+### Bug Fixes
+
+- **distributed:** Fix SyntaxError in `DistributedTrainingManager.dispose()` — removed invalid `await` in sync method; use sync `Client.close()`.
+- **api_client:** Fix async cleanup in `AsyncBleuAPIClient.__del__` — removed unsafe `asyncio.create_task(self.close())`; use `async with` for reliable cleanup.
+
+## [v1.3.41] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.40 to 1.3.41
+- See commit history for changes
+
+## [v1.3.40] - 2026-03-08
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.39 to 1.3.40
+- See commit history for changes
+
+## [v1.3.39] - 2026-03-02
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.38 to 1.3.39
+- See commit history for changes
+
+## [v1.3.38] - 2026-02-27
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.37 to 1.3.38
+- See commit history for changes
+
+## [v1.3.37] - 2026-02-23
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.36 to 1.3.37
+- See commit history for changes
+
+## [v1.3.36] - 2026-02-23
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.35 to 1.3.36
+- See commit history for changes
+
+## [v1.3.35] - 2026-02-23
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.34 to 1.3.35
+- See commit history for changes
+
+## [v1.3.34] - 2026-02-23
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.33 to 1.3.34
+- See commit history for changes
+
+## [v1.3.33] - 2026-02-23
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.32 to 1.3.33
+- See commit history for changes
+
+## [v1.3.32] - 2026-02-17
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.31 to 1.3.32
+- See commit history for changes
+
+## [v1.3.31] - 2026-02-16
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.30 to 1.3.31
+- See commit history for changes
+
+## [v1.3.30] - 2026-02-12
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.29 to 1.3.30
+- See commit history for changes
+
+## [v1.3.29] - 2026-02-12
+
+### PyPI release 1.3.29
+
+- Centralized version (`src/version.py`), circuit breaker 503, Redis health fix
+- QuantumGPUManager fixes (`_select_best_device`, `_get_available_memory`, `free`, `get_memory_info`)
+- pytest asyncio and coverage config, LICENSE/SECURITY.md, docs updates
+
+## [v1.3.27] - 2026-02-12
+
+### Added
+
+- **Centralized version:** `src/version.py` with `get_version()`; used by main app, API, config, and health endpoints.
+- **Security:** `LICENSE` at repo root, `SECURITY.md` (secrets, reporting, deployment checklist).
+- **Docker / Dependabot:** `bleu-os/DEPENDABOT_DOCKER_BUILDS.md` for fixing Dependabot PRs that fail Docker builds.
+
+### Changed
+
+- **Circuit breaker** now raises `ServiceUnavailable` (returns 503) instead of generic `Exception`; handler added in error-handling middleware.
+- **Redis health check** closes the client in a `finally` block to avoid connection leaks.
+- **Exception handling:** narrower catches in `SyndromeMeasurer.measure()`; version fallback and request-body read log warnings/debug.
+- **Exports:** `ServiceUnavailable` and `RateLimitExceeded` re-exported from `src` for API use; `src.__version__` uses `get_version()`.
+
+### Documentation
+
+- README: **Version** and **Development** sections (get_version, run tests, exceptions, contributing link).
+
+## [v1.3.26] - 2026-02-02
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.25 to 1.3.26
+- See commit history for changes
+
+## [v1.3.25] - 2026-02-02
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.24 to 1.3.25
+- See commit history for changes
+
+## [v1.3.24] - 2026-01-30
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.23 to 1.3.24
+- See commit history for changes
+
+## [v1.3.23] - 2026-01-29
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.22 to 1.3.23
+- See commit history for changes
+
+## [v1.3.22] - 2026-01-29
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.21 to 1.3.22
+- See commit history for changes
+
+## [v1.3.21] - 2026-01-29
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.20 to 1.3.21
+- See commit history for changes
+
+## [v1.3.20] - 2026-01-24
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.19 to 1.3.20
+- See commit history for changes
+
+## [v1.3.19] - 2026-01-24
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.18 to 1.3.19
+- See commit history for changes
+
+## [v1.3.18] - 2026-01-24
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.17 to 1.3.18
+- See commit history for changes
+
+## [v1.3.17] - 2026-01-24
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.16 to 1.3.17
+- See commit history for changes
+
+## [v1.3.16] - 2026-01-24
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.15 to 1.3.16
+- See commit history for changes
+
+## [v1.3.15] - 2026-01-18
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.14 to 1.3.15
+- See commit history for changes
+
+## [v1.3.14] - 2026-01-16
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.13 to 1.3.14
+- See commit history for changes
+
+## [v1.3.13] - 2026-01-16
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.12 to 1.3.13
+- See commit history for changes
+
+## [v1.3.12] - 2026-01-09
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.11 to 1.3.12
+- See commit history for changes
+
+## [v1.3.11] - 2026-01-09
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.10 to 1.3.11
+- See commit history for changes
+
+## [v1.3.10] - 2026-01-09
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.9 to 1.3.10
+- See commit history for changes
+
+## [v1.3.9] - 2026-01-09
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.8 to 1.3.9
+- See commit history for changes
+
+## [1.3.8] - 2026-01-07
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.7 to 1.3.8
+- See commit history for changes
+
+## [1.3.7] - 2026-01-07
+
+### 🐛 Critical Bug Fixes
+
+- Fixed 9 critical bugs affecting stability and usability
+- Resolved route conflicts - properly separated HTML (`/`) and JSON API (`/api`) endpoints
+- Added database compatibility - works seamlessly with both SQLite and PostgreSQL
+- Fixed module initialization errors - proper error handling during startup
+- Added comprehensive subscription validation - prevents crashes when users without subscriptions access API endpoints
+- Improved SQL execution safety - all raw SQL now uses SQLAlchemy's text() function
+- Implemented lazy loading for ML dependencies - application starts without ML dependencies; advanced analytics load on-demand
+- Added development defaults - developers can start the server immediately without configuration
+- Improved database URL resolution - respects DATABASE_URL environment variable, defaults to SQLite when no password provided
+- Centralized version management - all components now read from single source of truth
+
+### 🚀 Development Experience Improvements
+
+- Zero-configuration startup - application starts immediately without any setup
+- SQLite support for local development - no PostgreSQL required
+- Better error handling - clearer error messages and proper initialization
+- Security improvements - subscription validation and SQL injection prevention
+
+## [v1.3.6] - 2026-01-06
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.5 to 1.3.6
+- See commit history for changes
+
+## [v1.3.5] - 2026-01-06
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.4 to 1.3.5
+- See commit history for changes
+
+## [v1.3.4] - 2026-01-06
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.3 to 1.3.4
+- See commit history for changes
+
+## [v1.3.3] - 2025-12-28
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.2 to 1.3.3
+- See commit history for changes
+
+## [v1.3.2] - 2025-12-28
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.1 to 1.3.2
+- See commit history for changes
+
+## [v1.3.1] - 2025-12-28
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.3.0 to 1.3.1
+- See commit history for changes
+
+## [v1.3.0] - 2025-12-28
+
+### 🎉 Automatic Release
+
+- Version bumped automatically from 1.2.4 to 1.3.0
+- See commit history for changes
+
+All notable changes to Bleu.js will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [v1.2.4] - 2025-01-XX
+
+### 🎉 Major Feature: Comprehensive Bleu CLI
+
+#### ✨ New CLI Commands
+
+- **`bleu chat`** - Chat with Bleu.js AI models from command line
+  - Support for system messages and custom temperature
+  - File input and stdin support
+  - JSON output option
+- **`bleu generate`** - Text generation with customizable parameters
+  - Temperature and max-tokens control
+  - File input support
+- **`bleu embed`** - Create embeddings for multiple texts
+  - Batch processing support
+  - File input support
+- **`bleu models`** - Model management
+  - List all available models
+  - Get detailed model information
+- **`bleu config`** - Configuration management
+  - Set/get API keys
+  - View configuration
+  - Reset configuration
+- **`bleu health`** - API health check
+- **`bleu version`** - Version information
+
+#### 🔧 CLI Features
+
+- Built with Click framework for excellent UX
+- Multiple input methods: arguments, files, stdin
+- Structured JSON output for automation
+- Clear error messages with helpful suggestions
+- API key configuration via config file or environment variable
+- Graceful handling of missing dependencies
+
+#### 📦 Installation & Usage
+
+```bash
+# Install (includes API client + CLI)
+pip install bleu-js
+
+# Set API key
+bleu config set api-key <your-key>
+
+# Use CLI
+bleu chat "Hello, world!"
+bleu generate "Write a story"
+bleu embed "text1" "text2"
+bleu models list
+```
+
+#### 📚 Documentation
+
+- Comprehensive CLI documentation added to README
+- Usage examples and advanced patterns
+- Integration with existing SDK documentation
+
+#### 🔄 Entry Points
+
+- Added `bleu` command (primary)
+- Maintained `bleujs` command (backward compatible)
+- Both commands point to the same CLI implementation
+
+### 📦 Dependencies
+
+- Added `click>=8.2.1` to core dependencies
+
+### 🧹 Code Quality
+
+- Formatted with Black and isort
+- Comprehensive error handling
+- Type hints throughout
+
+## [1.2.3] - 2025-12-13
+
+### 🐛 Critical Bug Fixes
+
+- **Fixed:** Import path errors - Corrected module paths from `src.python.config` to `src.python.backend.config`
+- **Fixed:** Method name mismatches - Changed `db_manager.initialize()` to `db_manager.create_tables()`
+- **Fixed:** Cache initialization - Deferred async task creation to prevent `RuntimeError: no running event loop`
+- **Fixed:** Redis connection handling - Made Redis failures non-fatal, cache gracefully degrades when Redis unavailable
+- **Fixed:** SQLAlchemy reserved attribute - Renamed `metadata` column to `dataset_metadata` in Dataset model
+- **Fixed:** Missing log_level attribute - Added `log_level` to `APIConfig` with default value
+- **Fixed:** Uvicorn startup/shutdown - Replaced deprecated `on_event` with modern `lifespan` handlers
+- **Fixed:** Port configuration - Added support for `API_PORT` and `API_HOST` environment variables
+
+### 🔧 Backend Improvements
+
+- Replaced `aioredis` with `redis.asyncio` for Python 3.12 compatibility
+- Improved error handling in cache initialization
+- Enhanced configuration loading with proper defaults
+- Updated FastAPI to use lifespan context manager instead of deprecated events
+
+### 📦 Dependencies
+
+- Installed missing dependencies: `python-dotenv`, `python-jose`, `passlib[bcrypt]`, `python-multipart`
+- Replaced `structlog` with standard `logging` (structlog was optional dependency)
+
+### 🧹 Code Quality
+
+- Removed debug instrumentation from production code
+- Cleaned up import statements
+- Improved error messages and logging

@@ -1,0 +1,64 @@
+aiohttp>=3.12.15
+alembic>=1.13.1
+argon2-cffi>=25.1.0
+
+# Security tools
+bandit>=1.8.6
+bcrypt>=5.0.0
+black>=23.0.0
+cirq>=1.7.0
+
+# Additional security utilities
+click>=8.2.1
+# Security-focused requirements with latest secure versions
+# Core security dependencies
+cryptography>=50.0.0
+# Use dask instead of ray for distributed computing (more secure)
+dask[complete]>=2026.8.0
+
+# Web security
+fastapi>=0.104.1
+flake8>=7.3.0
+isort>=5.12.0
+mlflow>=3.17.2
+mypy>=1.17.1
+
+# ML/AI security
+numpy>=2.2.6
+optuna>=3.4.0
+pandas>=2.0.0
+passlib[bcrypt]>=1.7.4
+pennylane>=0.42.1
+pip-audit>=2.10.1
+pre-commit>=3.5.0
+# Use PyJWT instead of python-jose for better security
+PyJWT[crypto]>=2.8.0
+
+# Development security
+pytest>=7.4.0
+pytest-asyncio>=1.1.0
+pytest-cov>=6.2.1
+python-dateutil>=2.9.0.post0
+python-dotenv>=1.1.1
+python-multipart>=0.0.27
+
+# Quantum computing (secure versions)
+qiskit>=2.1.1
+redis>=6.3.0
+requests>=2.32.4
+rich>=15.0.0
+safety>=3.8.1
+scikit-learn>=1.7.1
+
+# Database security
+sqlalchemy>=2.0.42
+# Updated to fix DoS vulnerability (Issues #302, #303)
+starlette>=0.48.0
+tensorflow>=2.19.0
+torch>=2.8.0
+# Updated to fix ReDoS vulnerabilities (Issues #292, #296, #297, #298)
+# Note: Using latest available version (4.57.1 as of Feb 2025)
+transformers>=5.20.2
+urllib3>=2.6.3  # Fixed CVE-2026-21441 (decompression-bomb safeguard bypass)
+uvicorn[standard]>=0.35.0
+xgboost>=3.0.3

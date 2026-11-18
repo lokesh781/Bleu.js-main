@@ -1,0 +1,921 @@
+#!/usr/bin/env python3
+"""
+Bleu CLI - Comprehensive command-line interface for Bleu.js
+
+This CLI provides easy access to all Bleu.js features including:
+- Chat completions
+- Text generation
+- Embeddings
+- Model management
+- Configuration
+"""
+
+import json
+import logging
+import os
+import sys
+from pathlib import Path
+from typing import Optional, TextIO
+
+try:
+    import click
+except ImportError:
+    click = None
+
+try:
+    from .api_client import (
+        AuthenticationError,
+        BleuAPIClient,
+        BleuAPIError,
+        NetworkError,
+        RateLimitError,
+    )
+    from .api_client.constants import (
+        DEFAULT_BASE_URL,
+        DEFAULT_MODEL_CHAT,
+        DEFAULT_MODEL_EMBED,
+        DEFAULT_MODEL_GENERATE,
+    )
+except ImportError:
+    BleuAPIClient = None
+    DEFAULT_BASE_URL = "https://api.bleujs.org"  # pragma: no cover
+    DEFAULT_MODEL_CHAT = "bleu-chat-v1"
+    DEFAULT_MODEL_EMBED = "bleu-embed-v1"
+    DEFAULT_MODEL_GENERATE = "bleu-gen-v1"
+
+from . import __version__
+
+# Configuration file path
+CONFIG_DIR = Path.home() / ".bleujs"
+CONFIG_FILE = CONFIG_DIR / "config.json"
+
+_STATUS_SYMBOLS = {
+    "ok": ("✅", "[OK]"),
+    "error": ("❌", "[x]"),
+    "auth": ("🔐", "[auth]"),
+    "rate_limit": ("⏱️", "[rate limit]"),
+    "network": ("🌐", "[network]"),
+    "models": ("📋", "[models]"),
+    "model": ("📊", "[model]"),
+}
+
+
+def reconfigure_output_streams() -> None:
+    """Make the standard streams resilient to Unicode output on Windows."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if not callable(reconfigure):
+            continue
+        try:
+            reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            # Some test/capture streams expose reconfigure but do not allow changing
+            # the encoding after construction. The symbol helper still handles them.
+            continue
+
+
+def _output_stream(err: bool = False) -> TextIO:
+    return sys.stderr if err else sys.stdout
+
+
+def _stream_can_encode(stream: TextIO, text: str) -> bool:
+    encoding = getattr(stream, "encoding", None)
+    if not encoding:
+        return False
+    try:
+        text.encode(encoding)
+    except (LookupError, UnicodeEncodeError):
+        return False
+    return True
+
+
+def status_symbol(
+    name: str, *, err: bool = False, stream: Optional[TextIO] = None
+) -> str:
+    """Return a CLI status symbol, falling back to ASCII for narrow encodings."""
+    symbol, fallback = _STATUS_SYMBOLS[name]
+    target_stream = stream if stream is not None else _output_stream(err=err)
+    return symbol if _stream_can_encode(target_stream, symbol) else fallback
+
+
+def status_text(
+    name: str,
+    message: str,
+    *,
+    err: bool = False,
+    stream: Optional[TextIO] = None,
+) -> str:
+    return f"{status_symbol(name, err=err, stream=stream)} {message}"
+
+
+def ensure_config_dir():
+    """Ensure config directory exists"""
+    CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def get_config() -> dict:
+    """Load configuration from file"""
+    ensure_config_dir()
+    if CONFIG_FILE.exists():
+        try:
+            with open(CONFIG_FILE, "r") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, IOError):
+            return {}
+    return {}
+
+
+def save_config(config: dict):
+    """Save configuration to file"""
+    ensure_config_dir()
+    with open(CONFIG_FILE, "w") as f:
+        json.dump(config, f, indent=2)
+
+
+def get_api_key() -> Optional[str]:
+    """Get API key from config or environment"""
+    # Check environment variable first
+    api_key = os.getenv("BLEUJS_API_KEY")
+    if api_key:
+        return api_key
+
+    # Check config file
+    config = get_config()
+    return config.get("api_key")
+
+
+def get_client() -> Optional[BleuAPIClient]:
+    """Get API client instance"""
+    if BleuAPIClient is None:
+        click.echo(
+            status_text(
+                "error",
+                "API client not available. Install with: pip install bleu-js",
+                err=True,
+            ),
+            err=True,
+        )
+        sys.exit(1)
+
+    api_key = get_api_key()
+    if not api_key:
+        click.echo(
+            status_text(
+                "error",
+                "API key not found. Set it with: bleu config set api-key <key>",
+                err=True,
+            ),
+            err=True,
+        )
+        click.echo(
+            "   Or set BLEUJS_API_KEY environment variable.",
+            err=True,
+        )
+        click.echo(
+            f"   Get your key: {DEFAULT_BASE_URL}",
+            err=True,
+        )
+        sys.exit(1)
+
+    config = get_config()
+    base_url = os.getenv("BLEUJS_BASE_URL") or config.get("base_url")
+
+    try:
+        return BleuAPIClient(api_key=api_key, base_url=base_url or None)
+    except Exception as e:
+        click.echo(
+            status_text("error", f"Failed to initialize client: {e}", err=True),
+            err=True,
+        )
+        sys.exit(1)
+
+
+def format_error(
+    error: Exception, *, err: bool = True, stream: Optional[TextIO] = None
+) -> str:
+    """Format error message for display"""
+    if isinstance(error, AuthenticationError):
+        hint = getattr(error, "user_hint", None) or "Check your API key."
+        return (
+            f"{status_symbol('auth', err=err, stream=stream)} "
+            f"Authentication failed. {hint}"
+        )
+    elif isinstance(error, RateLimitError):
+        hint = getattr(error, "user_hint", None) or "Please wait and try again."
+        return (
+            f"{status_symbol('rate_limit', err=err, stream=stream)} "
+            f"Rate limit exceeded. {hint}"
+        )
+    elif isinstance(error, NetworkError):
+        return (
+            f"{status_symbol('network', err=err, stream=stream)} "
+            "Network error. Check your connection."
+        )
+    elif isinstance(error, BleuAPIError):
+        return status_text(
+            "error", f"API Error: {error.message}", err=err, stream=stream
+        )
+    else:
+        return status_text("error", f"Error: {str(error)}", err=err, stream=stream)
+
+
+# Main CLI group
+@click.group()
+@click.option(
+    "--debug",
+    is_flag=True,
+    help="Enable debug logging (e.g. API response shape when parsing fails).",
+)
+@click.version_option(version=__version__, prog_name="bleu")
+@click.pass_context
+def cli(ctx, debug: bool):
+    """
+    Bleu.js developer CLI for the Bleu.js API and SDK.
+
+    Get your first response in under two minutes:
+      pip install bleu-js
+      Get API key at https://bleujs.org
+      bleu config set api-key <your-key>
+      bleu chat "Hello, world!"
+
+    Commands: chat, generate, embed, models, config, health, version.
+    Use 'bleu' or 'bleujs' (both work). Docs: https://bleujs.org
+    """
+    reconfigure_output_streams()
+    ctx.ensure_object(dict)
+    if debug:
+        logging.getLogger("bleujs.api_client").setLevel(logging.DEBUG)
+        if not logging.getLogger("bleujs.api_client").handlers:
+            h = logging.StreamHandler(sys.stderr)
+            h.setFormatter(logging.Formatter("%(name)s %(levelname)s: %(message)s"))
+            logging.getLogger("bleujs.api_client").addHandler(h)
+
+
+# Config commands: group can be invoked without subcommand (bleu config → show all)
+@cli.group(invoke_without_command=True)
+@click.pass_context
+def config(ctx):
+    """Manage Bleu.js configuration."""
+    if ctx.invoked_subcommand is None:
+        _show_all_config()
+
+
+@config.command("set")
+@click.argument("key")
+@click.argument("value")
+def config_set(key: str, value: str):
+    """Set a configuration value"""
+    if key not in ["api-key", "api_key", "base-url", "base_url"]:
+        click.echo(
+            status_text("error", f"Unknown config key: {key}", err=True), err=True
+        )
+        click.echo("   Valid keys: api-key, base-url")
+        sys.exit(1)
+
+    config = get_config()
+
+    # Normalize key names
+    if key == "api-key":
+        key = "api_key"
+    elif key == "base-url":
+        key = "base_url"
+
+    config[key] = value
+    save_config(config)
+
+    # Mask API key in output
+    display_value = value if key != "api_key" else f"{value[:8]}...{value[-4:]}"
+    click.echo(status_text("ok", f"Set {key} = {display_value}"))
+
+
+def _show_all_config():
+    """Display all config (used by config get with no key and config show)."""
+    config = get_config()
+    if not config:
+        click.echo("No configuration set.")
+        click.echo("Set API key with: bleu config set api-key <key>")
+    else:
+        for k, v in config.items():
+            if k == "api_key":
+                v = f"{v[:8]}...{v[-4:]}"
+            click.echo(f"{k} = {v}")
+
+
+@config.command("get")
+@click.argument("key", required=False)
+def config_get(key: Optional[str]):
+    """Get configuration value(s)"""
+    config = get_config()
+
+    if key:
+        if key not in ["api-key", "api_key", "base-url", "base_url"]:
+            click.echo(
+                status_text("error", f"Unknown config key: {key}", err=True),
+                err=True,
+            )
+            sys.exit(1)
+
+        # Normalize key
+        if key == "api-key":
+            key = "api_key"
+        elif key == "base-url":
+            key = "base_url"
+
+        value = config.get(key)
+        if value:
+            # Mask API key
+            if key == "api_key":
+                value = f"{value[:8]}...{value[-4:]}"
+            click.echo(value)
+        else:
+            click.echo("(not set)")
+    else:
+        _show_all_config()
+
+
+@config.command("show")
+@click.argument("_rest", nargs=-1, required=False)
+def config_show(_rest: tuple):
+    """Show all configuration (same as: bleu config or bleu config get with no key)."""
+    _show_all_config()
+
+
+@config.command("reset")
+@click.confirmation_option(prompt="Are you sure you want to reset configuration?")
+def config_reset():
+    """Reset all configuration"""
+    if CONFIG_FILE.exists():
+        CONFIG_FILE.unlink()
+        click.echo(status_text("ok", "Configuration reset"))
+    else:
+        click.echo("No configuration to reset")
+
+
+# Chat command
+@cli.command()
+@click.argument("message", required=False)
+@click.option(
+    "--model",
+    "-m",
+    default=DEFAULT_MODEL_CHAT,
+    help=f"Model to use (default: {DEFAULT_MODEL_CHAT})",
+)
+@click.option(
+    "--temperature",
+    "-t",
+    type=float,
+    default=0.7,
+    help="Sampling temperature 0-2 (default: 0.7)",
+)
+@click.option("--max-tokens", "-n", type=int, help="Maximum tokens to generate")
+@click.option(
+    "--session-seed-goal",
+    type=str,
+    default=None,
+    help="Optional first-turn session hint (max 500 chars); seeds guided onboarding",
+)
+@click.option("--system", "-s", help="System message to set context")
+@click.option("--json", "output_json", is_flag=True, help="Output as JSON")
+@click.option(
+    "--file", "-f", type=click.Path(exists=True), help="Read message from file"
+)
+def chat(
+    message: Optional[str],
+    model: str,
+    temperature: float,
+    max_tokens: Optional[int],
+    session_seed_goal: Optional[str],
+    system: Optional[str],
+    output_json: bool,
+    file: Optional[str],
+):
+    """
+    Chat with Bleu.js AI models
+
+    Examples:
+      bleu chat "What is quantum computing?"
+      bleu chat "Explain AI" --temperature 0.9
+      bleu chat --file prompt.txt
+    """
+    # Get message
+    if file:
+        with open(file, "r") as f:
+            message = f.read().strip()
+    elif not message:
+        # Read from stdin
+        message = sys.stdin.read().strip()
+
+    if not message:
+        click.echo(status_text("error", "No message provided", err=True), err=True)
+        click.echo("   Usage: bleu chat <message> or bleu chat --file <file>")
+        sys.exit(1)
+
+    if session_seed_goal is not None and len(session_seed_goal) > 500:
+        click.echo(
+            status_text(
+                "error",
+                "--session-seed-goal must be at most 500 characters",
+                err=True,
+            ),
+            err=True,
+        )
+        sys.exit(1)
+
+    # Build messages
+    messages = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append({"role": "user", "content": message})
+
+    # Make request
+    try:
+        client = get_client()
+        response = client.chat(
+            messages=messages,
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            session_seed_goal=session_seed_goal,
+        )
+
+        if output_json:
+            click.echo(
+                json.dumps(
+                    {
+                        "id": response.id,
+                        "model": response.model,
+                        "content": response.content,
+                        "usage": response.usage,
+                    },
+                    indent=2,
+                )
+            )
+        else:
+            click.echo(response.content)
+
+    except Exception as e:
+        click.echo(format_error(e), err=True)
+        sys.exit(1)
+
+
+# Generate command
+@cli.command()
+@click.argument("prompt", required=False)
+@click.option(
+    "--model",
+    "-m",
+    default=DEFAULT_MODEL_GENERATE,
+    help=f"Model to use (default: {DEFAULT_MODEL_GENERATE})",
+)
+@click.option(
+    "--temperature",
+    "-t",
+    type=float,
+    default=0.7,
+    help="Sampling temperature 0-2 (default: 0.7)",
+)
+@click.option(
+    "--max-tokens",
+    "-n",
+    type=int,
+    default=256,
+    help="Maximum tokens to generate (default: 256)",
+)
+@click.option("--json", "output_json", is_flag=True, help="Output as JSON")
+@click.option(
+    "--file", "-f", type=click.Path(exists=True), help="Read prompt from file"
+)
+def generate(
+    prompt: Optional[str],
+    model: str,
+    temperature: float,
+    max_tokens: int,
+    output_json: bool,
+    file: Optional[str],
+):
+    """
+    Generate text from a prompt
+
+    Examples:
+      bleu generate "Once upon a time"
+      bleu generate "Write a story" --max-tokens 500
+      bleu generate --file prompt.txt
+    """
+    # Get prompt
+    if file:
+        with open(file, "r") as f:
+            prompt = f.read().strip()
+    elif not prompt:
+        # Read from stdin
+        prompt = sys.stdin.read().strip()
+
+    if not prompt:
+        click.echo(status_text("error", "No prompt provided", err=True), err=True)
+        click.echo("   Usage: bleu generate <prompt> or bleu generate --file <file>")
+        sys.exit(1)
+
+    # Make request
+    try:
+        client = get_client()
+        response = client.generate(
+            prompt=prompt,
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+
+        if output_json:
+            click.echo(
+                json.dumps(
+                    {
+                        "id": response.id,
+                        "model": response.model,
+                        "text": response.text,
+                        "usage": response.usage,
+                    },
+                    indent=2,
+                )
+            )
+        else:
+            click.echo(response.text)
+
+    except Exception as e:
+        click.echo(format_error(e), err=True)
+        sys.exit(1)
+
+
+# Embed command
+@cli.command()
+@click.argument("texts", nargs=-1, required=False)
+@click.option(
+    "--model",
+    "-m",
+    default=DEFAULT_MODEL_EMBED,
+    help=f"Model to use (default: {DEFAULT_MODEL_EMBED})",
+)
+@click.option(
+    "--file",
+    "-f",
+    type=click.Path(exists=True),
+    multiple=True,
+    help="Read text from file(s)",
+)
+@click.option("--json", "output_json", is_flag=True, help="Output as JSON")
+def embed(texts: tuple, model: str, file: tuple, output_json: bool):
+    """
+    Create embeddings for text(s)
+
+    Examples:
+      bleu embed "Hello world" "Goodbye world"
+      bleu embed --file text1.txt --file text2.txt
+      bleu embed "Single text" --json
+    """
+    # Collect texts
+    text_list = list(texts) if texts else []
+
+    # Read from files
+    for fpath in file:
+        with open(fpath, "r") as f:
+            text_list.append(f.read().strip())
+
+    # Read from stdin if no inputs
+    if not text_list:
+        text_list = [sys.stdin.read().strip()]
+
+    if not text_list or not any(text_list):
+        click.echo(status_text("error", "No texts provided", err=True), err=True)
+        click.echo(
+            "   Usage: bleu embed <text1> <text2> ... or bleu embed --file <file>"
+        )
+        sys.exit(1)
+
+    # Make request
+    try:
+        client = get_client()
+        response = client.embed(texts=text_list, model=model)
+
+        if output_json:
+            click.echo(
+                json.dumps(
+                    {
+                        "model": response.model,
+                        "embeddings": response.embeddings,
+                        "data": response.data,
+                        "usage": response.usage,
+                    },
+                    indent=2,
+                )
+            )
+        else:
+            click.echo(
+                status_text("ok", f"Generated {len(response.embeddings)} embeddings")
+            )
+            for i, emb in enumerate(response.embeddings):
+                dim = len(emb)
+                click.echo(f"  [{i}] Dimension: {dim}")
+
+    except Exception as e:
+        click.echo(format_error(e), err=True)
+        sys.exit(1)
+
+
+# Models command
+@cli.group()
+def models():
+    """Manage and list available models"""
+    pass
+
+
+@models.command("list")
+@click.option("--json", "output_json", is_flag=True, help="Output as JSON")
+def models_list(output_json: bool):
+    """List all available models"""
+    try:
+        client = get_client()
+        model_list = client.list_models()
+
+        if output_json:
+            click.echo(
+                json.dumps(
+                    [
+                        {
+                            "id": m.id,
+                            "name": getattr(m, "name", m.id),
+                            "description": getattr(m, "description", ""),
+                            "capabilities": getattr(m, "capabilities", []),
+                        }
+                        for m in model_list
+                    ],
+                    indent=2,
+                )
+            )
+        else:
+            click.echo(status_text("models", "Available Models:\n"))
+            for model in model_list:
+                name = getattr(model, "name", model.id)
+                desc = getattr(model, "description", "No description")
+                click.echo(f"  • {model.id}")
+                click.echo(f"    Name: {name}")
+                click.echo(f"    Description: {desc}")
+                if hasattr(model, "capabilities") and model.capabilities:
+                    click.echo(f"    Capabilities: {', '.join(model.capabilities)}")
+                click.echo()
+
+    except Exception as e:
+        click.echo(format_error(e), err=True)
+        sys.exit(1)
+
+
+# Quantum commands (require bleu-js[quantum])
+@cli.group()
+def quantum():
+    """Quantum computing: teleportation, simulators, IBM hardware"""
+    pass
+
+
+@quantum.command("teleport")
+@click.option(
+    "--theta",
+    "-t",
+    type=float,
+    default=1.234,
+    help="Source state angle Ry(theta)|0> (default: 1.234)",
+)
+@click.option(
+    "--shots",
+    "-n",
+    type=int,
+    default=2048,
+    help="Number of shots (default: 2048)",
+)
+@click.option(
+    "--ibm",
+    "use_ibm",
+    is_flag=True,
+    default=False,
+    help="Run on IBM Quantum hardware (default: local simulator)",
+)
+@click.option("--draw", is_flag=True, help="Print circuit diagram")
+@click.option("--json", "output_json", is_flag=True, help="Output as JSON")
+def quantum_teleport(
+    theta: float,
+    shots: int,
+    use_ibm: bool,
+    draw: bool,
+    output_json: bool,
+):
+    """
+    Run quantum teleportation (simulator or IBM Quantum).
+
+    Teleports the state Ry(theta)|0> from q0 to q2 using entanglement and
+    classical feed-forward. Runs on local simulator by default; use --ibm to
+    run on real hardware (set QISKIT_IBM_TOKEN and optional QISKIT_IBM_INSTANCE).
+
+    Examples:
+      bleu quantum teleport
+      bleu quantum teleport --theta 0.9 --shots 1024
+      bleu quantum teleport --ibm --shots 1024
+      bleu quantum teleport --draw
+    """
+    try:
+        from .teleportation import build_teleportation_circuit
+    except ImportError as e:
+        click.echo(
+            status_text(
+                "error",
+                (
+                    "Quantum support not installed. "
+                    "Install with: pip install 'bleu-js[quantum]'"
+                ),
+                err=True,
+            ),
+            err=True,
+        )
+        click.echo(f"   {e}", err=True)
+        sys.exit(1)
+
+    if use_ibm:
+        try:
+            from .ibm_runtime import run_teleportation_on_ibm
+        except ImportError as e:
+            click.echo(
+                status_text(
+                    "error",
+                    (
+                        "IBM Runtime not installed. "
+                        "Install with: pip install 'bleu-js[ibm]'"
+                    ),
+                    err=True,
+                ),
+                err=True,
+            )
+            click.echo(f"   {e}", err=True)
+            sys.exit(1)
+        from .ibm_runtime import ibm_token_from_env
+
+        if not ibm_token_from_env():
+            click.echo(
+                status_text(
+                    "error",
+                    (
+                        "QISKIT_IBM_TOKEN or IBM_QUANTUM_API_TOKEN is not set. "
+                        "Get a token at https://quantum.ibm.com"
+                    ),
+                    err=True,
+                ),
+                err=True,
+            )
+            sys.exit(1)
+        try:
+            out = run_teleportation_on_ibm(theta=theta, shots=shots)
+            if output_json:
+                click.echo(
+                    json.dumps(
+                        {
+                            "backend": out["backend"],
+                            "job_id": out["job_id"],
+                            "counts": out.get("counts"),
+                            "outcome": out.get("outcome"),
+                        },
+                        indent=2,
+                    )
+                )
+            else:
+                click.echo(status_text("ok", f"Backend: {out['backend']}"))
+                click.echo(f"   Job ID: {out['job_id']}")
+                if out.get("counts"):
+                    click.echo(f"   Counts: {out['counts']}")
+        except Exception as e:
+            click.echo(status_text("error", f"IBM run failed: {e}", err=True), err=True)
+            sys.exit(1)
+        return
+
+    # Simulator
+    try:
+        from .teleportation import run_teleportation_simulator
+    except ImportError:
+        click.echo(
+            status_text(
+                "error",
+                (
+                    "Simulator requires qiskit-aer. "
+                    "Install with: pip install 'bleu-js[quantum]'"
+                ),
+                err=True,
+            ),
+            err=True,
+        )
+        sys.exit(1)
+    qc = build_teleportation_circuit(theta=theta)
+    if draw:
+        click.echo(qc.draw())
+    out = run_teleportation_simulator(theta=theta, shots=shots)
+    if output_json:
+        click.echo(
+            json.dumps(
+                {"theta": theta, "shots": shots, "counts": out["counts"]}, indent=2
+            )
+        )
+    else:
+        click.echo(status_text("ok", f"Teleportation (theta={theta}, shots={shots})"))
+        click.echo(f"   Counts: {out['counts']}")
+
+
+@models.command("info")
+@click.argument("model_id")
+def models_info(model_id: str):
+    """Get detailed information about a model"""
+    try:
+        client = get_client()
+        model_list = client.list_models()
+
+        model = next((m for m in model_list if m.id == model_id), None)
+        if not model:
+            click.echo(
+                status_text("error", f"Model not found: {model_id}", err=True),
+                err=True,
+            )
+            click.echo("   Use 'bleu models list' to see available models")
+            sys.exit(1)
+
+        click.echo(status_text("model", f"Model: {model.id}\n"))
+        click.echo(
+            json.dumps(
+                {
+                    "id": model.id,
+                    "name": getattr(model, "name", model.id),
+                    "description": getattr(model, "description", ""),
+                    "capabilities": getattr(model, "capabilities", []),
+                    "created": getattr(model, "created", None),
+                    "owned_by": getattr(model, "owned_by", "bleujs"),
+                },
+                indent=2,
+            )
+        )
+
+    except Exception as e:
+        click.echo(format_error(e), err=True)
+        sys.exit(1)
+
+
+# Version command (already handled by @cli.version_option, but adding explicit command)
+@cli.command()
+def version():
+    """Show version information"""
+    click.echo(f"Bleu CLI v{__version__}")
+    click.echo(f"Visit {DEFAULT_BASE_URL} for more information")
+
+
+# Health check command
+@cli.command()
+def health():
+    """Check API health and connection."""
+    try:
+        client = get_client()
+        health_method = getattr(client, "health", None)
+        if callable(health_method):
+            try:
+                result = client.health()
+                click.echo(status_text("ok", "API connection healthy"))
+                click.echo(f"   Base URL: {client.base_url}")
+                if isinstance(result, dict) and result:
+                    status = result.get("status") or result.get("ok")
+                    if status is not None:
+                        click.echo(f"   Status: {status}")
+                return
+            except Exception:
+                pass
+        client.list_models()
+        click.echo(status_text("ok", "API connection healthy"))
+        click.echo(f"   Base URL: {client.base_url}")
+    except Exception as e:
+        click.echo(status_text("error", "API connection failed"))
+        click.echo(f"   {format_error(e, err=False)}")
+        sys.exit(1)
+
+
+# Main entry point
+def main():
+    """Main entry point for CLI"""
+    reconfigure_output_streams()
+    if click is None:
+        print(
+            status_text(
+                "error",
+                "Click is required. Install with: pip install click",
+                err=True,
+            ),
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    # Pass args and prog_name explicitly so `bleu config show` and tests work
+    # (avoids sys.argv / _detect_program_name() issues under pytest or -m)
+    args = sys.argv[1:] if len(sys.argv) > 1 else None
+    if args:
+        cli.main(args=args, prog_name="bleu")
+    else:
+        cli.main(prog_name="bleu")  # no args: show help
+
+
+if __name__ == "__main__":
+    main()

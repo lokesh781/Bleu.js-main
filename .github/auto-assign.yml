@@ -1,0 +1,19 @@
+# Auto-assign configuration for kentaro-m/auto-assign-action
+# https://github.com/kentaro-m/auto-assign-action
+
+# Set to true to add reviewers to pull requests
+addReviewers: true
+
+# Assign the PR author
+addAssignees: author
+
+# GitHub usernames (must be users with write access, not orgs)
+reviewers:
+  - pejmantheory
+
+# Number of reviewers to request (0 = all)
+numberOfReviewers: 1
+
+# Skip PRs whose title includes these keywords
+skipKeywords:
+  - wip

@@ -1,0 +1,32 @@
+FROM python:3.14-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    POETRY_VERSION=1.7.1
+
+# Install system dependencies and poetry
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -sSL https://install.python-poetry.org | python3 -
+
+# Set working directory
+WORKDIR /app
+
+# Copy dependency files and install dependencies
+COPY pyproject.toml poetry.lock ./ \
+    && poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-ansi --with dev
+
+# Copy source code and install test dependencies
+COPY . . \
+    && mkdir -p /app/tests/performance \
+    && pip install locust pytest pytest-cov
+
+# Set entrypoint
+ENTRYPOINT ["poetry", "run", "pytest"]

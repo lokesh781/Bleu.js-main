@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: EC2 setup for Bleu.js application
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t2.micro
+    Description: EC2 instance type
+  KeyName:
+    Type: String
+    Description: Name of an existing EC2 KeyPair
+  AmiId:
+    Type: AWS::EC2::Image::Id
+    Description: AMI to launch (choose one for your region)
+  AdminCIDR:
+    Type: String
+    Description: CIDR allowed to reach SSH (for example 203.0.113.10/32)
+
+Resources:
+  BleujsSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Bleu.js
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref AdminCIDR
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  BleujsInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: !Ref AmiId
+      KeyName: !Ref KeyName
+      SecurityGroupIds: [!Ref BleujsSecurityGroup]
+      UserData: !Base64 |
+        #!/bin/bash
+        yum update -y
+        yum install -y git nodejs npm
+        git clone https://github.com/HelloblueAI/Bleu.js.git
+        cd Bleu.js
+        npm install
+        npm start
+
+Outputs:
+  PublicIP:
+    Description: Public IP of the instance
+    Value: !GetAtt BleujsInstance.PublicIp

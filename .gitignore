@@ -1,0 +1,1036 @@
+# ----------------------------------------
+# 🌟 BleuJS Core Ignores
+# Copyright (c) 2025, Helloblue Inc.
+# Last updated: 2024-04-08
+# GPG Passphrase Test: 2024-03-29
+# GPG Cache Test: 2024-03-29 - Using Helloblue Project Key
+# ----------------------------------------
+
+# GitHub Actions (Never ignore)
+!.github/
+!.github/workflows/
+!.github/workflows/*.yml
+
+# ----------------------------------------
+# 📁 Internal docs (maintainer-only, not for public repo)
+# ----------------------------------------
+docs/internal/*
+!docs/internal/README.md
+
+# ----------------------------------------
+# 📊 NEVER Track Any Reports
+# ----------------------------------------
+report/
+reports/
+**/report*/
+**/Report*/
+coverage/
+**/coverage*/
+test-results/
+**/test-results*/
+**/test-report*/
+.nyc_output/
+junit.xml
+**/playwright-report/
+jest-html-reporters-attach/
+jest-stare/
+jest-report/
+mocha-report/
+**/dist-tests/
+htmlcov/
+.coverage
+.coverage.*
+*.snap
+__snapshots__/
+*.lcov
+
+# ----------------------------------------
+# 📦 Dependencies & Package Management
+# ----------------------------------------
+node_modules/
+**/node_modules/
+.pnp/
+.pnp.js
+.yarn/
+.pnpm-store/
+!yarn/patches/
+!yarn/plugins/
+!yarn/releases/
+!yarn/sdks/
+!yarn/versions/
+
+# Lock Files
+!pnpm-lock.yaml
+package-lock.json
+yarn.lock
+**/package-lock.json
+**/yarn.lock
+
+# Package Archives
+*.tgz
+*.zip
+*.tar.gz
+*.tar
+*.gz
+*.rar
+*.7z
+
+# ----------------------------------------
+# 🔄 Version Control
+# ----------------------------------------
+.git/
+.git/objects/
+.git/refs/
+.git/hooks/
+.git/COMMIT_EDITMSG
+.git/HEAD
+.git/index
+.git/logs/
+.git/ORIG_HEAD
+.git/config
+.git/description
+.git/info/
+.git/packed-refs
+.git/FETCH_HEAD
+.git/MERGE_HEAD
+.git/MERGE_MSG
+.git/MERGE_RR
+.git/SQUASH_MSG
+.git/TAG_EDITMSG
+
+# ----------------------------------------
+# 🔒 Environment & Secrets
+# ----------------------------------------
+.env
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.sample
+.env.development
+.env.test
+.env.production
+.env.staging
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.staging.local
+.env.*.local
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.csr
+*.ovpn
+.ssh/
+config/secrets.yml
+config/local_settings.py
+src/config/settings.py
+
+# Local credentials (never commit)
+**/DOCKERHUB_CREDENTIALS.local.md
+**/*.local.md
+**/*credentials*.local*
+**/*secrets*.local*
+.aws/
+.aws/*
+.aws/credentials
+.aws/config
+.aws/sso/
+.aws/sso/cache/
+backend/src/config/awsSecrets.js
+.gcloud/
+.azure/
+.terraform/
+*.tfstate
+*.tfvars
+
+# ----------------------------------------
+# 🌐 AWS Elastic Beanstalk
+# ----------------------------------------
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+# ----------------------------------------
+# 🏗️ Build & Generated Files
+# ----------------------------------------
+dist/
+build/
+out/
+.output/
+.cache/
+.temp/
+.next/
+.nuxt/
+.docusaurus/
+.dynamodb/
+.parcel-cache/
+.turbo/
+.webpack/
+storybook-static/
+__sapper__/
+.cdk.out/
+
+# ----------------------------------------
+# 🐍 Python & Virtual Environments
+# ----------------------------------------
+venv/
+**/venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+mypy_cache/
+pip-log.txt
+pip-delete-this-directory.txt
+bleujs-env/
+.pytest_cache/
+.python-version
+*.egg-info/
+.eggs/
+
+# ----------------------------------------
+# 🤖 Machine Learning & Model Files
+# ----------------------------------------
+# Model files
+*.pkl
+*.h5
+*.hdf5
+*.model
+*.joblib
+*.bin
+*.onnx
+*.pt
+*.pth
+*.ckpt
+*.pb
+*.savedmodel
+*.tflite
+*.mlmodel
+*.mlflow
+scaler.pkl
+model.json
+**/models/*.bin
+**/checkpoints/
+
+# ML Framework specific
+ray/
+**/ray/
+optuna/
+**/optuna/
+wandb/
+**/wandb/
+tensorboard/
+**/tensorboard/
+mlflow/
+**/mlflow/
+lightgbm/
+**/lightgbm/
+.neptune/
+.dvc/
+
+# Data files
+*.csv
+*.npy
+*.npz
+*.parquet
+*.feather
+*.arrow
+*.db
+*.sqlite
+*.sqlite3
+mlflow.db
+xgboost_training.log
+
+# MLflow artifacts
+mlruns/
+mlflow/
+**/mlruns/
+**/mlflow/
+.mlflow/
+**/.mlflow/
+
+# Model checkpoints and artifacts
+checkpoints/
+**/checkpoints/
+artifacts/
+**/artifacts/
+runs/
+**/runs/
+wandb/
+**/wandb/
+tensorboard/
+**/tensorboard/
+
+# ----------------------------------------
+# 📝 Logs & Debug Files
+# ----------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+debug.log
+*.err
+*.out
+logfile.txt
+app.log
+*.log.[0-9]
+xgboost_training.log
+mlflow.log
+*.training.log
+*.training.*.log
+
+# ----------------------------------------
+# 🛠️ IDE & Editor
+# ----------------------------------------
+.cursor/
+.idea/
+.vscode/
+.history/
+*.code-workspace
+*.swp
+*.swo
+.vs/
+*.sublime-workspace
+*.sublime-project
+
+# ----------------------------------------
+# 🐳 Docker & Containers
+# ----------------------------------------
+.dockerignore
+docker-compose*.yml
+*.dockerfile
+.terraform/
+.terraform.lock.hcl
+.kube/
+.kube/config
+**/.docker/
+**/.container/
+.dockerenv
+.docker-compose-logs/
+
+# ----------------------------------------
+# ⚡ Cache & Temp Files
+# ----------------------------------------
+.cache/
+.eslintcache
+.stylelintcache
+*.bak
+*.tmp
+*.pid
+*.seed
+.trash/
+.trash-*/
+.temp/
+.tmp/
+
+# ----------------------------------------
+# 🔧 Project Specific
+# ----------------------------------------
+dependency-management/
+.husky/
+.lintstagedrc.json
+response.json
+response_debug.bin
+.cache_ggshield
+Bleu.js-mirror/
+Bleu.js-mirror.bfg-report/
+eggs_backup/
+frontend/
+backend/
+.local/
+*.local
+
+# ----------------------------------------
+# 💻 System & OS
+# ----------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ----------------------------------------
+# 📊 Performance & Analysis
+# ----------------------------------------
+stats.html
+bundle-analysis/
+webpack-bundle-analyzer/
+
+# ----------------------------------------
+# ⭐ Keep These Files
+# ----------------------------------------
+!.gitignore
+!.gitattributes
+!requirements.txt
+!pyproject.toml
+!jest.config.js
+!jest.config.ts
+!jest.config.cjs
+!jest.setup.js
+!jest.setup.ts
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+.pnpm-store/
+.yarn/
+.yarnrc
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+.cache/
+.temp/
+
+# Testing
+coverage/
+.nyc_output/
+.nyc_cache/
+__snapshots__/
+*.lcov
+.jest/
+.jest-cache/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment variables
+.env
+.env.*
+!.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# Cache directories
+.cache/
+.temp/
+.tmp/
+.eslintcache
+.stylelintcache
+
+# Documentation
+docs/_build/
+site/
+.docusaurus/
+# Internal only (do not publish)
+docs/CHANGES_SINCE_LAST_WEEK.md
+
+# Quantum computing specific
+.quantum-cache/
+.quantum-temp/
+.quantum-debug/
+
+# Security specific
+.security-cache/
+.security-temp/
+.security-debug/
+
+# Multimodal specific
+.multimodal-cache/
+.multimodal-temp/
+.multimodal-debug/
+
+# TensorFlow.js specific
+.tfjs-cache/
+.tfjs-temp/
+.tfjs-debug/
+
+# Model files
+*.h5
+*.pkl
+*.onnx
+*.tflite
+*.pb
+*.pt
+*.pth
+*.bin
+*.weights
+*.model
+
+# Large media files
+*.mp4
+*.tiff
+*.avi
+*.flv
+*.mov
+*.wmv
+*.mp3
+*.wav
+*.flac
+*.aac
+*.ogg
+*.m4a
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.webp
+*.svg
+*.ico
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+*.swo
+*.swp
+*~
+
+# System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Project specific
+frontend/
+backend/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# CI/CD (keep .github/workflows/ tracked via ! rules at top)
+.gitlab-ci.yml
+.circleci/
+.travis.yml
+.azure-pipelines/
+.jenkins/
+.husky/
+.lint-staged/
+
+# Performance profiling
+.cpuprofile
+.heapprofile
+.flamegraph
+*.prof
+
+# Bundle analysis
+stats.html
+bundle-analysis/
+webpack-bundle-analyzer/
+
+# Local development
+.local/
+*.local
+
+# Production
+dist/
+build/
+lib/
+
+# Misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# TypeScript
+*.tsbuildinfo
+
+# Package manager
+.pnpm-store/
+.yarn/
+.yarnrc
+
+# ----------------------------------------
+# 🐍 Python
+# ----------------------------------------
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.env
+.venv
+bleujs-env-*/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Testing
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Logs
+*.log
+logs/
+log/
+
+# Local development
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Test GPG signing
+# Testing GPG with different key
+
+# Local Netlify folder
+.netlify
+
+# ----------------------------------------
+# 🐳 Frontend Specific
+# ----------------------------------------
+# Build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+.cache/
+.temp/
+.tmp/
+
+# Development tools
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs and debug files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
+*.bak
+*.tmp
+*.temp
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ----------------------------------------
+# 🚀 GitHub Actions
+# ----------------------------------------
+# Note: .github/workflows/ is explicitly included above
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+.env.local
+.env.development
+.env.test
+.env.production
+.env.staging
+secrets.json
+credentials.json
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.npm
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-workspace
+*.sublime-project
+*.sublime-cache
+
+# Build and distribution
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+.cache/
+.temp/
+.tmp/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+test-results/
+junit.xml
+coverage.xml
+*.lcov
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+*.sql
+*.dump
+*.backup
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Docker
+.docker/
+docker-compose.override.yml
+docker-compose.*.yml
+
+# Documentation
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# Poetry
+poetry.lock
+.poetry/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.env/
+.venv*/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Quantum Computing
+*.qasm
+*.qobj
+*.qasm.json
+*.qobj.json
+
+# Machine Learning
+*.h5
+*.model
+*.weights
+*.checkpoint
+*.tflite
+*.onnx
+*.pb
+*.pbtxt
+*.ckpt
+*.index
+*.meta
+*.data-*
+
+# Cache directories
+.cache/
+.npm/
+.eslintcache
+.stylelintcache
+.prettiercache
+
+# Misc
+*.bak
+*.swp
+*.swo
+*~
+*.pid
+*.seed
+*.pid.lock
+*.sock
+*.socket
+*.port
+*.port.lock
+
+# ----------------------------------------
+# 📦 System Installers & Archives
+# ----------------------------------------
+*.pkg
+*.api.zip
+*.installer
+*.dmg
+*.exe
+*.msi
+
+# ----------------------------------------
+# 📝 Log Files
+# ----------------------------------------
+*.log
+logs/
+**/logs/
+**/*.log
+**/log/
+**/log/*.log
+
+# Python build artifacts
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# PyPI credentials and config
+.pypirc
+~/.pypirc
+.pypi-token
+pypi_token*
+*pypi*token*
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+*.swp
+*~
+
+# IDE/editor files
+.vscode/
+.idea/
+.DS_Store
+
+# Security scan artifacts
+bandit-report.json
+safety-report.json
+pip-audit-report.json
+trivy-results.sarif
+*.sarif
+**/DOCKERHUB_CREDENTIALS.local.md
+**/*.local.md
+
+# Linter / formatter caches
+.ruff_cache/
+.mypy_cache/
+
+# Local venvs (any ad-hoc names)
+security-update-env/
+Bleu.js/

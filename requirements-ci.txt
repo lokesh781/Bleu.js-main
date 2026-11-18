@@ -1,0 +1,3 @@
+# CI / full test stack (same as: pip install -e ".[ci]")
+# Includes ML + quantum + deep + server deps; excludes gputil (see pyproject.toml [ci] extra)
+-e .[ci]

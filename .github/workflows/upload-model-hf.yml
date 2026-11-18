@@ -1,0 +1,126 @@
+name: Upload Model to Hugging Face
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Trigger on version tags like v1.0.0
+  workflow_dispatch:  # Manual trigger
+    inputs:
+      model_name:
+        description: 'Model name'
+        required: true
+        default: 'bleu-xgboost-classifier'
+      organization:
+        description: 'Organization name'
+        required: true
+        default: 'helloblueai'
+      version:
+        description: 'Model version'
+        required: false
+
+jobs:
+  upload-model:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # Fetch all history for tags
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install huggingface-hub
+
+      - name: Verify model files (same paths as setup_hf_model_auto.py)
+        id: model-files
+        run: |
+          echo "Paths used by scripts/setup_hf_model_auto.py (prefer *_latest.pkl):"
+          FOUND=0
+          for p in \
+            backend/xgboost_model_latest.pkl \
+            backend/models/xgboost_model_latest.pkl \
+            backend/scaler_latest.pkl \
+            backend/models/scaler_latest.pkl \
+            backend/xgboost_model.pkl \
+            backend/scaler.pkl
+          do
+            if [ -f "$p" ]; then
+              echo "  ✓ $p ($(ls -lh "$p" | awk '{print $5}'))"
+              FOUND=1
+            else
+              echo "  ✗ $p"
+            fi
+          done
+          echo "found=$FOUND" >> $GITHUB_OUTPUT
+          if [ "$FOUND" -eq 0 ]; then
+            echo "No model files found. Upload step will fail unless HF_TOKEN is unset (then upload is skipped)."
+          fi
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "latest")
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Using version: $VERSION"
+
+      - name: Skip upload (no model files)
+        if: steps.model-files.outputs.found != '1'
+        run: |
+          echo "⏭️ No model .pkl files found under backend/ — upload step skipped."
+          echo "Add backend/xgboost_model*.pkl and/or backend/scaler*.pkl to enable Hugging Face upload."
+
+      - name: Upload to Hugging Face
+        if: steps.model-files.outputs.found == '1'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "⚠️ HF_TOKEN not set - skipping Hugging Face upload."
+            echo "To enable: add HF_TOKEN (https://huggingface.co/settings/tokens) as a repo secret in Settings → Secrets and variables → Actions."
+            exit 0
+          fi
+
+          MODEL_NAME="${{ github.event.inputs.model_name || 'bleu-xgboost-classifier' }}"
+          ORG="${{ github.event.inputs.organization || 'helloblueai' }}"
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Add version to model name if not 'latest'
+          if [ "$VERSION" != "latest" ] && [ -n "$VERSION" ]; then
+            MODEL_NAME="${MODEL_NAME}-${VERSION}"
+          fi
+
+          echo "Uploading model: ${ORG}/${MODEL_NAME}"
+          python3 scripts/setup_hf_model_auto.py \
+            --organization "$ORG" \
+            --model-name "$MODEL_NAME"
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/') && steps.model-files.outputs.found == '1'
+        uses: softprops/action-gh-release@v3
+        with:
+          name: Model Release ${{ github.ref_name }}
+          body: |
+            Model uploaded to Hugging Face:
+            - Organization: ${{ github.event.inputs.organization || 'helloblueai' }}
+            - Model: ${{ github.event.inputs.model_name || 'bleu-xgboost-classifier' }}
+            - Version: ${{ steps.version.outputs.version }}
+
+            View model: https://huggingface.co/${{ github.event.inputs.organization || 'helloblueai' }}/${{ github.event.inputs.model_name || 'bleu-xgboost-classifier' }}
+          draft: false
+          prerelease: false
+          make_latest: true

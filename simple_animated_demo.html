@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bleu.js – Installation Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --accent: #00d4aa;
+            --accent-dim: #00d4aa33;
+            --success: #3fb950;
+            --info: #58a6ff;
+            --radius: 12px;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .container {
+            width: 100%;
+            max-width: 720px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin: 0 0 6px 0;
+            background: linear-gradient(135deg, var(--accent), #00a8cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        .terminal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+        }
+        .terminal-bar {
+            background: #21262d;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .terminal-bar .title {
+            flex: 1;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .terminal-body {
+            padding: 20px 24px;
+            min-height: 320px;
+            max-height: 420px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            font-family: 'JetBrains Mono', 'SF Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .terminal-body .line {
+            margin: 2px 0;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .terminal-body .line.info { color: var(--info); }
+        .terminal-body .line.success { color: var(--success); font-weight: 500; }
+        .terminal-body .line.output { color: var(--text-muted); }
+        .terminal-body .line.warning { color: #d29922; }
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1em;
+            background: var(--accent);
+            animation: blink 1s step-end infinite;
+            vertical-align: text-bottom;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+        }
+        .btn-primary:hover { box-shadow: 0 4px 14px var(--accent-dim); }
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { background: #21262d; }
+        .footer {
+            margin-top: 28px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .footer a:hover { text-decoration: underline; }
+        @media (prefers-reduced-motion: reduce) {
+            .cursor { animation: none; opacity: 1; }
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn:disabled:hover { box-shadow: none; }
+        .copy-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .copy-hint:hover { color: var(--accent); }
+        .copy-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+        .copy-toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Bleu.js</h1>
+            <p>Quantum-enhanced AI platform — install in under a minute</p>
+        </header>
+
+        <div class="terminal">
+            <div class="terminal-bar">
+                <span class="title">Installation demo</span>
+            </div>
+            <div class="terminal-body" id="demo" role="log" aria-live="polite" aria-label="Installation demo output">
+                <div class="line output">Click "Start demo" to run the installation sequence.</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn" onclick="startDemo()">▶ Start demo</button>
+            <button class="btn btn-secondary" onclick="resetDemo()">↻ Reset</button>
+            <button class="btn btn-secondary" id="speedBtn" onclick="toggleSpeed()" aria-pressed="false" aria-label="Playback speed">⚡ 1×</button>
+        </div>
+
+        <footer class="footer">
+            <a href="https://github.com/HelloblueAI/Bleu.js" target="_blank" rel="noopener">GitHub</a> ·
+            <a href="https://bleujs.org" target="_blank" rel="noopener">bleujs.org</a> ·
+            <code id="pipCmd" class="copy-hint" style="color: var(--text-muted);" title="Click to copy">pip install bleu-js</code>
+            <span style="display:block;margin-top:4px;opacity:0.7;">Enter — start · R — reset</span>
+        </footer>
+        <div class="copy-toast" id="copyToast" aria-live="polite">Copied to clipboard</div>
+    </div>
+
+    <script>
+        const demoSteps = [
+            { text: "$ cd Bleu.js", type: "output" },
+            { text: "", type: "output" },
+            { text: "Python 3.10+", type: "info" },
+            { text: "Python 3.10.12", type: "output" },
+            { text: "", type: "output" },
+            { text: "Creating virtual environment...", type: "info" },
+            { text: "✓ Virtual environment created", type: "success" },
+            { text: "", type: "output" },
+            { text: "Installing Bleu.js...", type: "info" },
+            { text: "Obtaining file:///./Bleu.js", type: "output" },
+            { text: "  Installing build dependencies ... done", type: "output" },
+            { text: "  Preparing editable metadata (pyproject.toml) ... done", type: "output" },
+            { text: "Collecting numpy>=1.24.0,<3.0.0", type: "output" },
+            { text: "  Downloading numpy-1.26.4 (... 18.2 MB)", type: "output" },
+            { text: "Successfully installed bleu-js-1.3.39", type: "success" },
+            { text: "", type: "output" },
+            { text: "Verifying installation:", type: "info" },
+            { text: "bleu     1.3.39", type: "output" },
+            { text: "bleu-js  1.3.39", type: "output" },
+            { text: "", type: "output" },
+            { text: "✓ Bleu.js is ready. Try: bleu chat \"Hello\"", type: "success" },
+            { text: "", type: "output" }
+        ];
+
+        let currentStep = 0;
+        let isPlaying = false;
+        let speed = 90;
+
+        function addLine(text, type) {
+            const demo = document.getElementById('demo');
+            const line = document.createElement('div');
+            line.className = 'line ' + (type || 'output');
+            line.textContent = text;
+            demo.appendChild(line);
+            demo.scrollTop = demo.scrollHeight;
+        }
+
+        const startBtn = document.getElementById('startBtn');
+        const speedBtn = document.getElementById('speedBtn');
+
+        function startDemo() {
+            if (isPlaying) return;
+            isPlaying = true;
+            startBtn.disabled = true;
+            startBtn.textContent = 'Playing…';
+            currentStep = 0;
+            document.getElementById('demo').innerHTML = '';
+
+            function playStep() {
+                if (currentStep < demoSteps.length && isPlaying) {
+                    addLine(demoSteps[currentStep].text, demoSteps[currentStep].type);
+                    currentStep++;
+                    setTimeout(playStep, speed);
+                } else {
+                    isPlaying = false;
+                    startBtn.disabled = false;
+                    startBtn.textContent = '▶ Start demo';
+                }
+            }
+            playStep();
+        }
+
+        function resetDemo() {
+            isPlaying = false;
+            currentStep = 0;
+            startBtn.disabled = false;
+            startBtn.textContent = '▶ Start demo';
+            document.getElementById('demo').innerHTML = '<div class="line output">Click "Start demo" to run the installation sequence.</div>';
+        }
+
+        function toggleSpeed() {
+            speed = speed === 90 ? 45 : 90;
+            const fast = speed === 45;
+            speedBtn.textContent = fast ? '⚡ 2×' : '⚡ 1×';
+            speedBtn.setAttribute('aria-pressed', fast);
+        }
+
+        document.getElementById('pipCmd').addEventListener('click', function () {
+            navigator.clipboard.writeText('pip install bleu-js').then(function () {
+                var toast = document.getElementById('copyToast');
+                toast.classList.add('show');
+                setTimeout(function () { toast.classList.remove('show'); }, 1500);
+            });
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.target.closest('button') || e.target.id === 'pipCmd') return;
+            if (e.key === 'Enter' && !isPlaying) { startDemo(); e.preventDefault(); }
+            if (e.key === 'r' || e.key === 'R') { resetDemo(); }
+        });
+    </script>
+</body>
+</html>

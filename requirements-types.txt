@@ -1,0 +1,12 @@
+types-boto3
+types-cryptography
+types-hvac
+types-jwt
+types-passlib
+types-psutil
+types-PyYAML
+# types for PyJWT (pyjwt has inline types)
+types-requests
+types-setuptools
+types-stripe
+types-tensorflow

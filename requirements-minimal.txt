@@ -1,0 +1,2 @@
+# Alias for default SDK/CLI install — same as requirements.txt
+-r requirements.txt

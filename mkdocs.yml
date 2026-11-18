@@ -1,0 +1,79 @@
+site_name: BleuJS Documentation
+site_description: API client, CLI, and optional ML and quantum extras for Bleu.js
+site_author: BleuJS Team
+repo_url: https://github.com/HelloblueAI/Bleu.js
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    primary: indigo
+    accent: blue
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.suggest
+    - search.highlight
+
+nav:
+  - Home: index.md
+  - Get started: GET_STARTED.md
+  - Installation: INSTALLATION.md
+  - Quickstart: QUICKSTART.md
+  - API client: API_CLIENT_GUIDE.md
+  - Package map: PACKAGE_MAP.md
+  - Architecture: PRODUCT_ARCHITECTURE.md
+  - Contributing: CONTRIBUTING.md
+  - Deployment: DEPLOYMENT_PRACTICES.md
+  - Older published claims:
+    - Achievements: ACHIEVEMENTS.md
+    - Performance: PERFORMANCE.md
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - footnotes
+  - meta
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          rendering:
+            show_source: true
+            show_if_no_docstring: true
+  - git-revision-date-localized:
+      type: timeago
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/HelloblueAI/Bleu.js
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/bleu-js/

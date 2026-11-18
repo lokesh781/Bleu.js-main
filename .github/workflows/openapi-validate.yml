@@ -1,0 +1,55 @@
+# Validate OpenAPI spec (docs/api/openapi.yaml) so the API contract stays valid.
+# Runs when the spec or API doc changes; keeps us ahead of projects that don't validate their spec.
+name: Validate OpenAPI
+
+on:
+  push:
+    branches: [main, staging]
+    paths: ['docs/api/**', 'docs/API_CLIENT_GUIDE.md', 'services/edge-stub/**']
+  pull_request:
+    branches: [main, staging]
+    paths: ['docs/api/**', 'docs/API_CLIENT_GUIDE.md', 'services/edge-stub/**']
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install PyYAML
+        run: pip install pyyaml
+      - name: Validate OpenAPI spec (YAML + structure + contract quality)
+        run: |
+          python -c "
+          import yaml
+          with open('docs/api/openapi.yaml') as f:
+            spec = yaml.safe_load(f)
+          assert 'openapi' in spec, 'missing openapi key'
+          assert 'paths' in spec, 'missing paths'
+          assert 'info' in spec, 'missing info'
+          assert spec.get('openapi', '').startswith('3.'), 'openapi must be 3.x'
+          paths = spec['paths']
+          assert len(paths) >= 1, 'paths must not be empty'
+          op_ids = []
+          for path, methods in paths.items():
+            for method, op in (methods or {}).items():
+              if method.lower() in ('get','put','post','delete','patch','head','options') and isinstance(op, dict):
+                oid = op.get('operationId')
+                if oid:
+                  assert oid not in op_ids, f'duplicate operationId: {oid}'
+                  op_ids.append(oid)
+          print('OpenAPI spec valid (YAML + structure + operationIds unique)')
+          "
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "20"
+      - name: Install PyYAML for contract test
+        run: pip install pyyaml
+      - name: Edge stub contract and API smoke tests
+        run: npm test
+        working-directory: services/edge-stub

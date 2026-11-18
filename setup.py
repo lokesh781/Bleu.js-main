@@ -1,0 +1,131 @@
+"""
+Legacy setuptools entry point for compatibility (e.g. pip install -e .).
+Canonical build: pyproject.toml + Poetry. Keep this legacy version source in sync with pyproject.toml.
+"""
+
+import re
+
+from setuptools import find_packages, setup
+
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
+# Legacy setuptools reads the runtime package version.
+_version_file = "src/bleujs/__init__.py"
+with open(_version_file, "r", encoding="utf-8") as fh:
+    _version_match = re.search(r'__version__\s*=\s*["\']([^"\']+)["\']', fh.read())
+    if not _version_match:
+        raise RuntimeError(f"Could not find __version__ in {_version_file}")
+    version = _version_match.group(1)
+
+# Minimal default: API + CLI only (match pyproject.toml)
+requirements = [
+    "numpy>=1.24.0,<3.0.0",
+    "click>=8.0.0",
+    "httpx>=0.24.0",
+    "pydantic>=2.0.0",
+    "urllib3>=2.6.3",
+]
+
+setup(
+    name="bleu-js",
+    version=version,
+    author="Bleujs Team",
+    author_email="support@helloblue.ai",
+    description=(
+        "Python API client and CLI for the Bleu.js API, "
+        "with optional ML and quantum extras"
+    ),
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/HelloblueAI/Bleu.js",
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Scientific/Engineering :: Quantum Computing",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+    ],
+    python_requires=">=3.11",
+    install_requires=requirements,
+    entry_points={
+        "console_scripts": [
+            # Use package-relative path (bleujs.cli:main) so the installed CLI works after pip install.
+            # Do not use "cli:main" — that causes ModuleNotFoundError when the package is installed.
+            "bleu-js=bleujs.cli:main",
+            "bleujs=bleujs.cli:main",
+            "bleu=bleujs.cli:main",
+        ],
+    },
+    include_package_data=True,
+    package_data={
+        "": ["models/*", "configs/*", "data/*", "static/*", "templates/*"],
+    },
+    extras_require={
+        # API client features
+        "api": [
+            "httpx>=0.24.0",
+            "pydantic>=2.0.0",
+        ],
+        # Quantum computing features (simulator + circuits)
+        "quantum": [
+            "qiskit>=0.40.0",
+            "qiskit-aer>=0.13.0",
+            "pennylane>=0.30.0",
+        ],
+        # IBM Quantum hardware (requires quantum)
+        "ibm": [
+            "qiskit-ibm-runtime>=0.22.0",
+        ],
+        # Machine learning features (versions aligned with pyproject.toml)
+        "ml": [
+            "scikit-learn>=1.2.0",
+            "xgboost>=3.0.2",
+            "pandas>=2.0.0",
+        ],
+        # Deep learning features
+        "deep": [
+            "torch>=2.0.0",
+            "tensorflow>=2.10.0,<2.22",
+        ],
+        # Full installation (all features)
+        "all": [
+            "httpx>=0.24.0",
+            "pydantic>=2.0.0",
+            "qiskit>=0.40.0",
+            "qiskit-aer>=0.13.0",
+            "pennylane>=0.30.0",
+            "scikit-learn>=1.2.0",
+            "xgboost>=3.0.2",
+            "pandas>=2.0.0",
+            "torch>=2.0.0",
+            "tensorflow>=2.10.0,<2.22",
+        ],
+        # Development tools
+        "dev": [
+            "pytest>=7.0.0",
+            "pytest-cov>=4.0.0",
+            "pytest-asyncio>=0.21.0",
+            "black>=22.0.0",
+            "isort>=5.0.0",
+            "flake8>=4.0.0",
+            "mypy>=0.900",
+            "pre-commit>=2.0.0",
+        ],
+        # Documentation
+        "docs": [
+            "sphinx>=4.0.0",
+            "sphinx-rtd-theme>=1.0.0",
+            "sphinx-autodoc-typehints>=1.0.0",
+        ],
+    },
+)

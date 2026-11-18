@@ -1,0 +1,25 @@
+# Development dependencies — install after editable package install.
+#   pip install -e . && pip install -r requirements-dev.txt
+# For CI-parity stack: pip install -r requirements-ci.txt && pip install -r requirements-dev.txt
+# Canonical versions live in pyproject.toml [tool.poetry.group.dev.dependencies].
+
+-r requirements-types.txt
+bandit>=1.8.3
+black>=24.0.0
+build>=1.6.1
+flake8>=7.2.0
+isort>=5.13.2
+mypy>=1.16.0
+pipdeptree>=4.2.13
+
+# Development tools
+pre-commit>=4.2.0
+
+# Testing and linting
+pytest>=8.4.0
+pytest-asyncio>=0.21.1
+pytest-cov>=6.1.1
+# Documentation and packaging
+readme_renderer>=46.0
+safety>=3.8.1
+twine>=7.0.0
